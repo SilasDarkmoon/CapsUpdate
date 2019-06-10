@@ -1,0 +1,19 @@
+{
+
+    "name": "cn.capstones.update",
+
+    "displayName": "Capstone Update",
+
+    "version": "0.0.1",
+
+    "unity": "2018.3",
+
+    "description": "Capstone Update",
+
+    "keywords": [
+        "unity"
+    ],
+
+    "category": "Unity"
+
+}
