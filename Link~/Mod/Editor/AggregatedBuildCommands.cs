@@ -10,7 +10,7 @@ namespace Capstones.UnityEditorEx
 {
     public static class AggregatedBuildCommands
     {
-        [MenuItem("Res/Build All (Quick)", priority = 200103)]
+        [MenuItem("Res/Build All (Quick)", priority = 200140)]
         public static void BuildAllQuick()
         {
             CapsResBuilder.BuildingParams = CapsResBuilder.ResBuilderParams.Create();
@@ -21,7 +21,7 @@ namespace Capstones.UnityEditorEx
             while (work.MoveNext()) ;
             CapsResBuilder.BuildingParams = null;
         }
-        [MenuItem("Res/Build All (Full)", priority = 200104)]
+        [MenuItem("Res/Build All (Full)", priority = 200150)]
         public static void BuildAllFull()
         {
             CapsResBuilder.BuildingParams = CapsResBuilder.ResBuilderParams.Create();
@@ -32,7 +32,7 @@ namespace Capstones.UnityEditorEx
             CapsResBuilder.BuildingParams = null;
             CapsUpdateBuilder.BuildNearestUpdate();
         }
-        [MenuItem("Res/Build All (Full, With Progress Window)", priority = 200105)]
+        [MenuItem("Res/Build All (Full, With Progress Window)", priority = 200160)]
         public static void BuildAllFullWithProg()
         {
             CapsResBuilder.BuildingParams = CapsResBuilder.ResBuilderParams.Create();

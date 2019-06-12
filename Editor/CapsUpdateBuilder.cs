@@ -879,7 +879,7 @@ namespace Capstones.UnityEditorEx
             }
         }
 
-        [MenuItem("Res/Build Nearest Update", priority = 200102)]
+        [MenuItem("Res/Build Nearest Update", priority = 200130)]
         public static void BuildNearestUpdate()
         {
             var work = BuildNearestUpdate(null);
