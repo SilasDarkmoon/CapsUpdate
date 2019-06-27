@@ -887,7 +887,7 @@ namespace Capstones.UnityEngineEx
             return false;
         }
 
-        [RuntimeInitializeOnLoadMethod]
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         private static void OnUnityStart()
         {
 #if !UNITY_EDITOR

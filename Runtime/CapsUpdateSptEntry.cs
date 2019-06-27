@@ -1206,7 +1206,7 @@ namespace Capstones.UnityEngineEx
         }
         public static readonly ArrangeUpdateInitItem _ArrangeUpdateInitItem = new ArrangeUpdateInitItem();
 
-        [RuntimeInitializeOnLoadMethod]
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         private static void OnUnityStart()
         {
 #if !UNITY_EDITOR
