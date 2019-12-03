@@ -3,7 +3,11 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.IO;
+#if !NET_4_6 && !NET_STANDARD_2_0
 using Unity.IO.Compression;
+#else
+using System.IO.Compression;
+#endif
 using UnityEditor;
 using Capstones.UnityEngineEx;
 
