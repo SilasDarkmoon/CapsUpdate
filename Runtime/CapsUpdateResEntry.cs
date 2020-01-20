@@ -687,15 +687,18 @@ namespace Capstones.UnityEngineEx
                         CapsUnityMainBehav.LoadEntrySceneBg();
                         foreach (var kvploaded in ResManager.LoadedAssetBundles)
                         {
-                            var abname = kvploaded.Key;
-                            if (kvploaded.Value.RealName != null)
+                            if (kvploaded.Value != null)
                             {
-                                abname = kvploaded.Value.RealName;
-                            }
-                            string path = ThreadSafeValues.UpdatePath + "/pending/res/" + abname;
-                            if (PlatDependant.IsFileExist(path))
-                            {
-                                entryPendingAbs.Add(abname);
+                                var abname = kvploaded.Key;
+                                if (kvploaded.Value.RealName != null)
+                                {
+                                    abname = kvploaded.Value.RealName;
+                                }
+                                string path = ThreadSafeValues.UpdatePath + "/pending/res/" + abname;
+                                if (PlatDependant.IsFileExist(path))
+                                {
+                                    entryPendingAbs.Add(abname);
+                                }
                             }
                         }
                         CapsUnityMainBehav.UnloadEntrySceneBg();
