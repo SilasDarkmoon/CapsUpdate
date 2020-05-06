@@ -530,6 +530,7 @@ namespace Capstones.UnityEngineEx
                             if (kvpver.Value < MaxAppVer)
                             {
                                 IsAllRunningVersionNew = false;
+                                break;
                             }
                         }
                     }
