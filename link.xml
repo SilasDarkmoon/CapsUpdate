@@ -1,0 +1,3 @@
+<linker>
+  <assembly fullname="CapsUpdate" preserve="all"/>
+</linker>
