@@ -498,19 +498,10 @@ namespace Capstones.UnityEngineEx
                 // Parse the ver num running now.
                 if (_PackageVer > 0 || _ObbVer > 0)
                 {
-                    var uverpath = ThreadSafeValues.UpdatePath + "/spt/ver.txt";
-                    if (PlatDependant.IsFileExist(uverpath))
+                    _RunningVer = ParseRunningSptVersion();
+                    if (_RunningVer.Count == 0)
                     {
-                        _RunningVer = ParseRunningSptVersion();
-                        if (_RunningVer.Count == 0)
-                        {
-                            _RunningVer = null;
-                        }
-                    }
-                    else
-                    {
-                        // _RunningVer = null;
-                        // this means: should delete all.
+                        _RunningVer = null;
                     }
                 }
 
@@ -748,9 +739,10 @@ namespace Capstones.UnityEngineEx
                             {
                                 if (IsAndroid)
                                 {
-                                    if (ResManager.ObbZipArchive == null)
+                                    var archs = new[] { ResManager.AndroidApkZipArchive, ResManager.ObbZipArchive };
+                                    for (int i = 0; i < archs.Length; ++i)
                                     {
-                                        var arch = ResManager.AndroidApkZipArchive;
+                                        var arch = archs[i];
                                         if (arch != null)
                                         {
                                             try
