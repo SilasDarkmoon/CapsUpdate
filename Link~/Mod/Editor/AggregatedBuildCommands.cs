@@ -15,8 +15,11 @@ namespace Capstones.UnityEditorEx
         {
             CapsResBuilder.BuildingParams = CapsResBuilder.ResBuilderParams.Create();
             CapsResBuilder.BuildingParams.makezip = false;
-            var work = CapsSptBuilder.BuildSptAsync(null, null, new[] { new CapsSptBuilder.SptBuilderEx_RawCopy() });
+            IEnumerator work;
+#if MOD_CAPSLUA
+            work = CapsSptBuilder.BuildSptAsync(null, null, new[] { new CapsSptBuilder.SptBuilderEx_RawCopy() });
             while (work.MoveNext()) ;
+#endif
             work = CapsResBuilder.BuildResAsync(null, null);
             while (work.MoveNext()) ;
             CapsResBuilder.BuildingParams = null;
@@ -26,8 +29,11 @@ namespace Capstones.UnityEditorEx
         {
             CapsResBuilder.BuildingParams = CapsResBuilder.ResBuilderParams.Create();
             CapsResBuilder.BuildingParams.makezip = false;
-            var work = CapsSptBuilder.BuildSptAsync(null, null);
+            IEnumerator work;
+#if MOD_CAPSLUA
+            work = CapsSptBuilder.BuildSptAsync(null, null);
             while (work.MoveNext()) ;
+#endif
             work = CapsResBuilder.BuildResAsync(null, null);
             while (work.MoveNext()) ;
             CapsResBuilder.BuildingParams = null;
@@ -36,8 +42,11 @@ namespace Capstones.UnityEditorEx
         public static void BuildAllFull()
         {
             CapsResBuilder.BuildingParams = CapsResBuilder.ResBuilderParams.Create();
-            var work = CapsSptBuilder.BuildSptAsync(null, null);
+            IEnumerator work;
+#if MOD_CAPSLUA
+            work = CapsSptBuilder.BuildSptAsync(null, null);
             while (work.MoveNext()) ;
+#endif
             work = CapsResBuilder.BuildResAsync(null, null);
             while (work.MoveNext()) ;
             CapsResBuilder.BuildingParams = null;
@@ -48,7 +57,9 @@ namespace Capstones.UnityEditorEx
         {
             CapsResBuilder.BuildingParams = CapsResBuilder.ResBuilderParams.Create();
             var winprog = new EditorWorkProgressShowerInConsole();
+#if MOD_CAPSLUA
             winprog.Works.Add(CapsSptBuilder.BuildSptAsync(null, winprog));
+#endif
             winprog.Works.Add(CapsResBuilder.BuildResAsync(null, winprog));
             winprog.Works.Add(CapsUpdateBuilder.BuildNearestUpdate(winprog));
             winprog.OnQuit += () => { CapsResBuilder.BuildingParams = null; };
