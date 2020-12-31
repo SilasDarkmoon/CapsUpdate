@@ -426,74 +426,7 @@ namespace Capstones.UnityEngineEx
                 HashSet<string> _OldRunningKeys = null;
 
                 // Parse the ver num in the app package.
-                if (ThreadSafeValues.AppStreamingAssetsPath.Contains("://"))
-                {
-                    if (IsAndroid)
-                    {
-                        { // Apk ver.
-                            var arch = ResManager.AndroidApkZipArchive;
-                            if (arch != null)
-                            {
-                                try
-                                {
-                                    var entry = arch.GetEntry("assets/spt/version.txt");
-                                    if (entry != null)
-                                    {
-                                        using (var stream = entry.Open())
-                                        {
-                                            using (var sr = new System.IO.StreamReader(stream))
-                                            {
-                                                var strver = sr.ReadLine();
-                                                int.TryParse(strver, out _PackageVer);
-                                            }
-                                        }
-                                    }
-                                }
-                                catch (Exception e)
-                                {
-                                    PlatDependant.LogError(e);
-                                }
-                            }
-                        }
-                        { // Obb ver.
-                            var arch = ResManager.ObbZipArchive;
-                            if (arch != null)
-                            {
-                                try
-                                {
-                                    var entry = arch.GetEntry("spt/version.txt");
-                                    if (entry != null)
-                                    {
-                                        using (var stream = entry.Open())
-                                        {
-                                            using (var sr = new System.IO.StreamReader(stream))
-                                            {
-                                                var strver = sr.ReadLine();
-                                                int.TryParse(strver, out _ObbVer);
-                                            }
-                                        }
-                                    }
-                                }
-                                catch (Exception e)
-                                {
-                                    PlatDependant.LogError(e);
-                                }
-                            }
-                        }
-                    }
-                }
-                else
-                {
-                    var path = ThreadSafeValues.AppStreamingAssetsPath + "/spt/version.txt";
-                    if (PlatDependant.IsFileExist(path))
-                    {
-                        using (var sr = PlatDependant.OpenReadText(path))
-                        {
-                            var strver = sr.ReadLine();
-                            int.TryParse(strver, out _PackageVer);
-                        }
-                    }
-                }
+                CapsUpdateResEntry.GetPackageResVersion(out _PackageVer, out _ObbVer);
 
                 // Parse the ver num running now.
                 if (_PackageVer > 0 || _ObbVer > 0)
@@ -1121,6 +1054,14 @@ namespace Capstones.UnityEngineEx
                 {
                     vers["spt-" + kvp.Key] = kvp.Value;
                 }
+
+                int _PackageVer, _ObbVer;
+                CapsUpdateResEntry.GetPackageResVersion(out _PackageVer, out _ObbVer);
+                if (_PackageVer > 0 || _ObbVer > 0)
+                {
+                    vers["package"] = Math.Max(_PackageVer, _ObbVer);
+                }
+
                 CrossEvent.TrigClrEvent("SptManifestReady", new CrossEvent.RawEventData<Dictionary<string, int>>(vers));
             }
         }

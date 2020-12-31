@@ -411,90 +411,7 @@ namespace Capstones.UnityEngineEx
                 _UpdateFiles = null;
 
                 // Parse the ver num in the app package.
-                if (Application.streamingAssetsPath.Contains("://"))
-                {
-                    if (Application.platform == RuntimePlatform.Android)
-                    {
-                        { // Apk ver.
-                            var arch = ResManager.AndroidApkZipArchive;
-                            if (arch != null)
-                            {
-                                try
-                                {
-                                    var entry = arch.GetEntry("assets/res/version.txt");
-                                    if (entry != null)
-                                    {
-                                        using (var stream = entry.Open())
-                                        {
-                                            using (var sr = new System.IO.StreamReader(stream))
-                                            {
-                                                var strver = sr.ReadLine();
-                                                int.TryParse(strver, out _PackageVer);
-                                            }
-                                        }
-                                    }
-                                }
-                                catch (Exception e)
-                                {
-                                    PlatDependant.LogError(e);
-                                }
-                            }
-                        }
-                        { // Obb ver.
-                            var arch = ResManager.ObbZipArchive;
-                            if (arch != null)
-                            {
-                                try
-                                {
-                                    var entry = arch.GetEntry("res/version.txt");
-                                    if (entry != null)
-                                    {
-                                        using (var stream = entry.Open())
-                                        {
-                                            using (var sr = new System.IO.StreamReader(stream))
-                                            {
-                                                var strver = sr.ReadLine();
-                                                int.TryParse(strver, out _ObbVer);
-                                            }
-                                        }
-                                    }
-                                }
-                                catch (Exception e)
-                                {
-                                    PlatDependant.LogError(e);
-                                }
-                            }
-                        }
-                    }
-                    else
-                    {
-                        var vertxt = Resources.Load<TextAsset>("version");
-                        if (vertxt != null)
-                        {
-                            try
-                            {
-                                var strver = vertxt.text;
-                                int.TryParse(strver, out _PackageVer);
-                            }
-                            catch (Exception e)
-                            {
-                                PlatDependant.LogError(e);
-                            }
-                        }
-                    }
-                }
-                else
-                {
-                    var path = Application.streamingAssetsPath + "/res/version.txt";
-                    if (PlatDependant.IsFileExist(path))
-                    {
-                        using (var sr = PlatDependant.OpenReadText(path))
-                        {
-                            var strver = sr.ReadLine();
-                            int.TryParse(strver, out _PackageVer);
-                        }
-                    }
-                }
+                ParsePackageResVersion(out _PackageVer, out _ObbVer);
 
                 // Parse the ver num running now.
                 if (_PackageVer > 0 || _ObbVer > 0)
@@ -743,6 +660,106 @@ namespace Capstones.UnityEngineEx
         private static string[] _PendingFiles = null;
         private static string[] _UpdateFiles = null;
 
+        public static void ParsePackageResVersion(out int packageVer, out int obbVer)
+        {
+            packageVer = 0;
+            obbVer = 0;
+            // Parse the ver num in the app package.
+            if (Application.streamingAssetsPath.Contains("://"))
+            {
+                if (Application.platform == RuntimePlatform.Android)
+                {
+                    { // Apk ver.
+                        var arch = ResManager.AndroidApkZipArchive;
+                        if (arch != null)
+                        {
+                            try
+                            {
+                                var entry = arch.GetEntry("assets/res/version.txt");
+                                if (entry != null)
+                                {
+                                    using (var stream = entry.Open())
+                                    {
+                                        using (var sr = new System.IO.StreamReader(stream))
+                                        {
+                                            var strver = sr.ReadLine();
+                                            int.TryParse(strver, out packageVer);
+                                        }
+                                    }
+                                }
+                            }
+                            catch (Exception e)
+                            {
+                                PlatDependant.LogError(e);
+                            }
+                        }
+                    }
+                    { // Obb ver.
+                        var arch = ResManager.ObbZipArchive;
+                        if (arch != null)
+                        {
+                            try
+                            {
+                                var entry = arch.GetEntry("res/version.txt");
+                                if (entry != null)
+                                {
+                                    using (var stream = entry.Open())
+                                    {
+                                        using (var sr = new System.IO.StreamReader(stream))
+                                        {
+                                            var strver = sr.ReadLine();
+                                            int.TryParse(strver, out obbVer);
+                                        }
+                                    }
+                                }
+                            }
+                            catch (Exception e)
+                            {
+                                PlatDependant.LogError(e);
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    var vertxt = Resources.Load<TextAsset>("version");
+                    if (vertxt != null)
+                    {
+                        try
+                        {
+                            var strver = vertxt.text;
+                            int.TryParse(strver, out packageVer);
+                        }
+                        catch (Exception e)
+                        {
+                            PlatDependant.LogError(e);
+                        }
+                    }
+                }
+            }
+            else
+            {
+                var path = Application.streamingAssetsPath + "/res/version.txt";
+                if (PlatDependant.IsFileExist(path))
+                {
+                    using (var sr = PlatDependant.OpenReadText(path))
+                    {
+                        var strver = sr.ReadLine();
+                        int.TryParse(strver, out packageVer);
+                    }
+                }
+            }
+
+        }
+        public static void GetPackageResVersion(out int packageVer, out int obbVer)
+        {
+            if (_PackageVer == 0 && _ObbVer == 0)
+            {
+                ParsePackageResVersion(out _PackageVer, out _ObbVer);
+            }
+            packageVer = _PackageVer;
+            obbVer = _ObbVer;
+        }
         public static Dictionary<string, int> ParseResVersion(string verfile)
         {
             Dictionary<string, int> versions = new Dictionary<string, int>();
