@@ -761,14 +761,46 @@ namespace Capstones.UnityEditorEx
                 UnityEngine.Debug.Log(e);
             }
 
+            System.Collections.Concurrent.ConcurrentQueue<string> threadedLogs = new System.Collections.Concurrent.ConcurrentQueue<string>();
+            int mainThreadLogScheduled = 0;
             UnityEngine.Application.LogCallback LogToFile = (message, stack, logtype) =>
             {
-                swlog.WriteLine(message);
-                swlog.Flush();
+                if (ThreadSafeValues.IsMainThread)
+                {
+                    swlog.WriteLine(message);
+                    swlog.Flush();
+                    string mess;
+                    while (threadedLogs.TryDequeue(out mess))
+                    {
+                        swlog.WriteLine(mess);
+                        swlog.Flush();
+                    }
+                }
+                else
+                {
+                    threadedLogs.Enqueue(message);
+                    if (System.Threading.Interlocked.Increment(ref mainThreadLogScheduled) == 1)
+                    {
+                        UnityThreadDispatcher.RunInUnityThread(() =>
+                        {
+                            string mess;
+                            while (threadedLogs.TryDequeue(out mess))
+                            {
+                                swlog.WriteLine(mess);
+                                swlog.Flush();
+                            }
+                            System.Threading.Interlocked.Decrement(ref mainThreadLogScheduled);
+                        });
+                    }
+                    else
+                    {
+                        System.Threading.Interlocked.Decrement(ref mainThreadLogScheduled);
+                    }
+                }
             };
             if (swlog != null)
             {
-                UnityEngine.Application.logMessageReceived += LogToFile;
+                UnityEngine.Application.logMessageReceivedThreaded += LogToFile;
             }
             bool cleanupDone = false;
             Action BuilderCleanup = () =>
@@ -780,7 +812,7 @@ namespace Capstones.UnityEditorEx
                     logger.Log("(Done) Build Update Cleaup.");
                     if (swlog != null)
                     {
-                        UnityEngine.Application.logMessageReceived -= LogToFile;
+                        UnityEngine.Application.logMessageReceivedThreaded -= LogToFile;
                         swlog.Flush();
                         swlog.Dispose();
                     }
