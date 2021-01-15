@@ -1,6 +1,6 @@
 ﻿local UnityEngine = clr.UnityEngine
 local Application = UnityEngine.Application
-local PlatDependant = clr.Capstones.PlatExt.PlatDependant
+local PlatDependant = clr.Capstones.UnityEngineEx.PlatDependant
 
 local update = {}
 
@@ -168,9 +168,9 @@ function update.update(funcComplete, funcReport)
                                         if req.Error and req.Error ~= "" then
                                             local msg = req.Error
                                             if msg == "timedout" or msg == "cancelled" then
-                                                msg = lang.transstr("timedOut")
+                                                msg = clr.transstr("timedOut")
                                             else
-                                                msg = lang.transstr("networkError")
+                                                msg = clr.transstr("networkError")
                                             end
                                             if funcReport then
                                                 funcReport("error", msg)
