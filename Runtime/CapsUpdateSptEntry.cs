@@ -19,6 +19,7 @@ namespace Capstones.UnityEngineEx
         {
             var uverpath = ThreadSafeValues.UpdatePath + "/spt/ver.txt";
             var resver = CapsUpdateResEntry.ParseResVersion(uverpath);
+            CapsUpdateResEntry.ParseResVersionInFolder(ThreadSafeValues.UpdatePath + "/pending/spt");
             var pverpath = ThreadSafeValues.UpdatePath + "/pending/spt/ver.txt";
             var pver = CapsUpdateResEntry.ParseResVersion(pverpath);
             foreach (var kvpver in pver)
@@ -995,6 +996,7 @@ namespace Capstones.UnityEngineEx
                             sw.Flush();
                         }
                         PlatDependant.MoveFile(versionfiletmp, versionfile);
+                        CrossEvent.TrigEvent("ResetSptRuntimeManifest");
                     }
                     PrepareRuntimeManifest();
                     progress.Done = true;
@@ -1013,10 +1015,6 @@ namespace Capstones.UnityEngineEx
         }
         public static void StartCheckPendingUpdate()
         {
-            if (RuntimeManifestOld)
-            {
-                CrossEvent.TrigEvent("LockSptManifest");
-            }
             // Load resdesc from package. Note: we want to know whether the package is new, so we donot need the updated resdesc.
             OpMods.Clear();
             var descs = Resources.LoadAll<CapsModDesc>("resdesc");
@@ -1038,32 +1036,26 @@ namespace Capstones.UnityEngineEx
             _CheckPendingUpdateProgress = PlatDependant.RunBackground(CheckPendingUpdateWork);
         }
 
-        public static bool RuntimeManifestOld = true;
         private static void PrepareRuntimeManifest()
         {
-            if (RuntimeManifestOld)
+            Dictionary<string, int> vers = new Dictionary<string, int>();
+            foreach (var kvp in CapsUpdateResEntry.ParseRunningResVersion())
             {
-                RuntimeManifestOld = false;
-
-                Dictionary<string, int> vers = new Dictionary<string, int>();
-                foreach (var kvp in CapsUpdateResEntry.ParseRunningResVersion())
-                {
-                    vers["res-" + kvp.Key] = kvp.Value;
-                }
-                foreach (var kvp in ParseRunningSptVersion())
-                {
-                    vers["spt-" + kvp.Key] = kvp.Value;
-                }
-
-                int _PackageVer, _ObbVer;
-                CapsUpdateResEntry.GetPackageResVersion(out _PackageVer, out _ObbVer);
-                if (_PackageVer > 0 || _ObbVer > 0)
-                {
-                    vers["package"] = Math.Max(_PackageVer, _ObbVer);
-                }
-
-                CrossEvent.TrigClrEvent("SptManifestReady", new CrossEvent.RawEventData<Dictionary<string, int>>(vers));
+                vers["res-" + kvp.Key] = kvp.Value;
             }
+            foreach (var kvp in ParseRunningSptVersion())
+            {
+                vers["spt-" + kvp.Key] = kvp.Value;
+            }
+
+            int _PackageVer, _ObbVer;
+            CapsUpdateResEntry.GetPackageResVersion(out _PackageVer, out _ObbVer);
+            if (_PackageVer > 0 || _ObbVer > 0)
+            {
+                vers["package"] = Math.Max(_PackageVer, _ObbVer);
+            }
+
+            CrossEvent.TrigClrEvent("SptManifestReady", new CrossEvent.RawEventData<Dictionary<string, int>>(vers));
         }
 
         public class ArrangeUpdateInitItem : ResManager.ILifetime, ResManager.IInitAsync, ResManager.IInitProgressReporter

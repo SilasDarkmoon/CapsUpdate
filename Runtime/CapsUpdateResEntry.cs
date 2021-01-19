@@ -760,6 +760,55 @@ namespace Capstones.UnityEngineEx
             packageVer = _PackageVer;
             obbVer = _ObbVer;
         }
+        public static Dictionary<string, int> ParseResVersionInFolder(string folder)
+        {
+            Dictionary<string, int> versions = new Dictionary<string, int>();
+            var verfolder = folder + "/version";
+            var files = PlatDependant.GetAllFiles(verfolder);
+            for (int i = 0; i < files.Length; ++i)
+            {
+                var file = files[i];
+                if (file != null && file.EndsWith(".txt"))
+                {
+                    var sub = file.Substring(verfolder.Length + 1, file.Length - verfolder.Length - 5);
+                    using (var sr = PlatDependant.OpenReadText(file))
+                    {
+                        if (sr != null)
+                        {
+                            string line;
+                            while ((line = sr.ReadLine()) != null)
+                            {
+                                if (!string.IsNullOrWhiteSpace(line))
+                                {
+                                    int ver;
+                                    bool success = int.TryParse(line, out ver);
+                                    if (success)
+                                    {
+                                        versions[sub] = ver;
+                                    }
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    PlatDependant.DeleteFile(file);
+                }
+            }
+            if (versions.Count > 0)
+            {
+                using (var sw = PlatDependant.OpenAppendText(folder + "/ver.txt"))
+                {
+                    foreach (var kvp in versions)
+                    {
+                        sw.Write(kvp.Key);
+                        sw.Write("|");
+                        sw.WriteLine(kvp.Value);
+                    }
+                }
+            }
+            PlatDependant.DeleteFile(folder + "/version.txt");
+            return versions;
+        }
         public static Dictionary<string, int> ParseResVersion(string verfile)
         {
             Dictionary<string, int> versions = new Dictionary<string, int>();
@@ -823,6 +872,7 @@ namespace Capstones.UnityEngineEx
         {
             var uverpath = ThreadSafeValues.UpdatePath + "/res/ver.txt";
             var resver = ParseResVersion(uverpath);
+            ParseResVersionInFolder(ThreadSafeValues.UpdatePath + "/pending/res");
             var pverpath = ThreadSafeValues.UpdatePath + "/pending/res/ver.txt";
             var pver = ParseResVersion(pverpath);
             foreach (var kvpver in pver)

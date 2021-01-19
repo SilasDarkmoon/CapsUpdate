@@ -53,7 +53,9 @@ namespace Capstones.UnityEditorEx
                 }
                 else
                 {
-                    string mentry = "res/mani/" + Path.GetFileNameWithoutExtension(newz).ToLower() + ".m.ab";
+                    var reskey = Path.GetFileNameWithoutExtension(newz).ToLower();
+                    string mentry = "res/mani/" + reskey + ".m.ab";
+                    string dverentry = "res/version/" + reskey + ".txt";
                     CapsResManifest mold = null;
                     CapsResManifest mnew = null;
 
@@ -275,7 +277,7 @@ namespace Capstones.UnityEditorEx
                                     }
 
                                     // mani / unity manifest / version.txt
-                                    string[] rawcopyentries = new[] { mentry, umpathnew, "res/version.txt" };
+                                    string[] rawcopyentries = new[] { mentry, umpathnew, "res/version.txt", dverentry };
                                     for (int i = 0; i < rawcopyentries.Length; ++i)
                                     {
                                         var ename = rawcopyentries[i];
@@ -433,7 +435,14 @@ namespace Capstones.UnityEditorEx
                                         catch { }
                                     }
                                     // version.txt
-                                    string[] rawcopyentries = new[] { "spt/version.txt" };
+                                    var sptkey = Path.GetFileNameWithoutExtension(newz).ToLower();
+                                    var archindex = sptkey.LastIndexOf('.');
+                                    if (archindex > 0)
+                                    {
+                                        sptkey = sptkey.Substring(0, archindex);
+                                    }
+                                    var dverentry = "spt/version/" + sptkey + ".txt";
+                                    string[] rawcopyentries = new[] { "spt/version.txt", dverentry };
                                     for (int i = 0; i < rawcopyentries.Length; ++i)
                                     {
                                         var ename = rawcopyentries[i];
