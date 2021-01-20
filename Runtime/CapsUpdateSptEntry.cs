@@ -742,7 +742,7 @@ namespace Capstones.UnityEngineEx
                                 sw.Flush();
                             }
                             PlatDependant.MoveFile(versionfiletmp, versionfile);
-                            PrepareRuntimeManifest();
+                            //PrepareRuntimeManifest();
                             progress.Done = true;
                             return;
                         }
@@ -942,7 +942,7 @@ namespace Capstones.UnityEngineEx
                                 sw.Flush();
                             }
                             PlatDependant.MoveFile(versionfiletmp, versionfile);
-                            PrepareRuntimeManifest();
+                            //PrepareRuntimeManifest();
                             progress.Done = true;
                             return;
                         }
@@ -996,9 +996,9 @@ namespace Capstones.UnityEngineEx
                             sw.Flush();
                         }
                         PlatDependant.MoveFile(versionfiletmp, versionfile);
-                        CrossEvent.TrigEvent("ResetSptRuntimeManifest");
+                        //CrossEvent.TrigEvent("ResetSptRuntimeManifest");
                     }
-                    PrepareRuntimeManifest();
+                    //PrepareRuntimeManifest();
                     progress.Done = true;
                     return;
                 }
@@ -1095,6 +1095,7 @@ namespace Capstones.UnityEngineEx
                         yield return null;
                     }
                 }
+                PrepareRuntimeManifest();
                 yield break;
             }
 

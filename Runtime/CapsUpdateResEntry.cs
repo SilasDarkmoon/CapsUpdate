@@ -365,7 +365,7 @@ namespace Capstones.UnityEngineEx
                     if (_RunningVer != null && pendingready)
                     {
                         // write version
-                        var versionfile = ThreadSafeValues.UpdatePath + "/spt/ver.txt";
+                        var versionfile = ThreadSafeValues.UpdatePath + "/res/ver.txt";
                         var versionfiletmp = versionfile + ".tmp";
                         using (var sw = PlatDependant.OpenWriteText(versionfiletmp))
                         {
