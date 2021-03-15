@@ -931,4 +931,49 @@ namespace Capstones.UnityEditorEx
             while (work.MoveNext()) ;
         }
     }
+
+    public class CapsUpdateBuilderEx : CapsResBuilder.IResBuilderEx
+    {
+        public void Cleanup()
+        {
+            if (System.IO.Directory.Exists("Assets/StreamingAssets/res/version/"))
+            {
+                System.IO.Directory.Delete("Assets/StreamingAssets/res/version/", true);
+            }
+            if (System.IO.Directory.Exists("Assets/StreamingAssets/spt/version/"))
+            {
+                System.IO.Directory.Delete("Assets/StreamingAssets/spt/version/", true);
+            }
+        }
+        public bool CreateItem(CapsResManifestNode node)
+        {
+            return false;
+        }
+        public string FormatBundleName(string asset, string mod, string dist, string norm)
+        {
+            return null;
+        }
+        public void GenerateBuildWork(string bundleName, IList<string> assets, ref AssetBundleBuild abwork, CapsResBuilder.CapsResBuildWork modwork, int abindex)
+        {
+        }
+        public void ModifyItem(CapsResManifestItem item)
+        {
+        }
+        public void OnSuccess()
+        {
+        }
+        public void Prepare(string output)
+        {
+        }
+    }
+
+    [InitializeOnLoad]
+    public static class CapsUpdateBuilderExEntry
+    {
+        private static CapsUpdateBuilderEx _Builder = new CapsUpdateBuilderEx();
+        static CapsUpdateBuilderExEntry()
+        {
+            CapsResBuilder.ResBuilderEx.Add(_Builder);
+        }
+    }
 }

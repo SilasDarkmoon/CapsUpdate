@@ -3,7 +3,8 @@
     "references": [
         "ResManager",
         "Unity.IO.Compression",
-        "ResManagerEditor"
+        "ResManagerEditor",
+        "ResManagerEditor.ResBuilder"
     ],
     "includePlatforms": [
         "Editor"
