@@ -2,6 +2,11 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+#if !NET_4_6 && !NET_STANDARD_2_0
+using Unity.IO.Compression;
+#else
+using System.IO.Compression;
+#endif
 
 using Object = UnityEngine.Object;
 
@@ -210,86 +215,95 @@ namespace Capstones.UnityEngineEx
             {
                 if (IsAndroid)
                 {
-                    var arch = ResManager.ObbZipArchive;
-                    if (arch != null)
+                    var allobbs = ResManager.AllObbZipArchives;
+                    if (allobbs != null)
                     {
-                        try
+                        for (int z = 0; z < allobbs.Length; ++z)
                         {
-                            var indexentry = arch.GetEntry("spt/index.txt");
-                            if (indexentry == null)
-                            {
-                                var entries = arch.Entries;
-                                for (int i = 0; i < entries.Count; ++i)
-                                {
-                                    var name = entries[i].FullName;
-                                    if (name.StartsWith("spt/"))
-                                    {
-                                        string mod = "";
-                                        string dist = "";
-                                        string norm = null;
-                                        if (name.StartsWith("spt/mod/"))
-                                        {
-                                            var imodend = name.IndexOf('/', "spt/mod/".Length);
-                                            if (imodend > 0)
-                                            {
-                                                mod = name.Substring("spt/mod/".Length, imodend - "spt/mod/".Length);
-                                                norm = name.Substring(imodend + 1);
-                                            }
-                                        }
-                                        if (norm == null)
-                                        {
-                                            norm = name.Substring("spt/".Length);
-                                        }
-                                        if (norm.StartsWith("dist/"))
-                                        {
-                                            var idistend = norm.IndexOf('/', "dist/".Length);
-                                            if (idistend > 0)
-                                            {
-                                                dist = norm.Substring("dist/".Length, idistend - "dist/".Length);
-                                            }
-                                        }
+                            var zip = allobbs[z];
 
-                                        if (mod != "" && !OpMods.Contains(mod))
-                                        {
-                                            mod = "";
-                                        }
-
-                                        HashSet<string> dists;
-                                        if (!keys.TryGetValue(mod, out dists))
-                                        {
-                                            dists = new HashSet<string>();
-                                            keys[mod] = dists;
-                                        }
-                                        dists.Add(dist);
-                                    }
-                                }
-                            }
-                            else
+                            var arch = zip;
+                            if (arch != null)
                             {
-                                using (var stream = indexentry.Open())
+                                try
                                 {
-                                    using (var sr = new System.IO.StreamReader(stream, System.Text.Encoding.UTF8))
+                                    var indexentry = arch.GetEntry("spt/index.txt");
+                                    if (indexentry == null)
                                     {
-                                        while (true)
+                                        var entries = arch.Entries;
+                                        for (int i = 0; i < entries.Count; ++i)
                                         {
-                                            var line = sr.ReadLine();
-                                            if (line == null)
+                                            var name = entries[i].FullName;
+                                            if (name.StartsWith("spt/"))
                                             {
-                                                break;
-                                            }
-                                            line = line.Trim();
-                                            if (line != "")
-                                            {
-                                                combkeys.Add(line);
+                                                string mod = "";
+                                                string dist = "";
+                                                string norm = null;
+                                                if (name.StartsWith("spt/mod/"))
+                                                {
+                                                    var imodend = name.IndexOf('/', "spt/mod/".Length);
+                                                    if (imodend > 0)
+                                                    {
+                                                        mod = name.Substring("spt/mod/".Length, imodend - "spt/mod/".Length);
+                                                        norm = name.Substring(imodend + 1);
+                                                    }
+                                                }
+                                                if (norm == null)
+                                                {
+                                                    norm = name.Substring("spt/".Length);
+                                                }
+                                                if (norm.StartsWith("dist/"))
+                                                {
+                                                    var idistend = norm.IndexOf('/', "dist/".Length);
+                                                    if (idistend > 0)
+                                                    {
+                                                        dist = norm.Substring("dist/".Length, idistend - "dist/".Length);
+                                                    }
+                                                }
+
+                                                if (mod != "" && !OpMods.Contains(mod))
+                                                {
+                                                    mod = "";
+                                                }
+
+                                                HashSet<string> dists;
+                                                if (!keys.TryGetValue(mod, out dists))
+                                                {
+                                                    dists = new HashSet<string>();
+                                                    keys[mod] = dists;
+                                                }
+                                                dists.Add(dist);
                                             }
                                         }
                                     }
+                                    else
+                                    {
+                                        using (var stream = indexentry.Open())
+                                        {
+                                            using (var sr = new System.IO.StreamReader(stream, System.Text.Encoding.UTF8))
+                                            {
+                                                while (true)
+                                                {
+                                                    var line = sr.ReadLine();
+                                                    if (line == null)
+                                                    {
+                                                        break;
+                                                    }
+                                                    line = line.Trim();
+                                                    if (line != "")
+                                                    {
+                                                        combkeys.Add(line);
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                                catch (Exception e)
+                                {
+                                    PlatDependant.LogError(e);
                                 }
                             }
-                        }
-                        catch (Exception e)
-                        {
-                            PlatDependant.LogError(e);
                         }
                     }
                 }
@@ -318,20 +332,29 @@ namespace Capstones.UnityEngineEx
                 if (IsAndroid)
                 {
                     { // Obb
-                        var arch = ResManager.ObbZipArchive;
-                        if (arch != null)
+                        var allobbs = ResManager.AllObbZipArchives;
+                        if (allobbs != null)
                         {
-                            try
+                            for (int z = allobbs.Length - 1; z >= 0; --z)
                             {
-                                var entry = arch.GetEntry(item);
-                                if (entry != null)
+                                var zip = allobbs[z];
+
+                                var arch = zip;
+                                if (arch != null)
                                 {
-                                    return true;
+                                    try
+                                    {
+                                        var entry = arch.GetEntry(item);
+                                        if (entry != null)
+                                        {
+                                            return true;
+                                        }
+                                    }
+                                    catch (Exception e)
+                                    {
+                                        PlatDependant.LogError(e);
+                                    }
                                 }
-                            }
-                            catch (Exception e)
-                            {
-                                PlatDependant.LogError(e);
                             }
                         }
                     }
@@ -571,16 +594,25 @@ namespace Capstones.UnityEngineEx
                                 }
                                 if (!ResManager.LoadAssetsFromObb)
                                 {
-                                    var zobb = ResManager.ObbZipArchive;
-                                    if (zobb != null)
+                                    var allobbs = ResManager.AllObbZipArchives;
+                                    if (allobbs != null)
                                     {
-                                        try
+                                        for (int z = 0; z < allobbs.Length; ++z)
                                         {
-                                            progress.Total += zobb.Entries.Count;
-                                        }
-                                        catch (Exception e)
-                                        {
-                                            PlatDependant.LogError(e);
+                                            var zip = allobbs[z];
+
+                                            var zobb = zip;
+                                            if (zobb != null)
+                                            {
+                                                try
+                                                {
+                                                    progress.Total += zobb.Entries.Count;
+                                                }
+                                                catch (Exception e)
+                                                {
+                                                    PlatDependant.LogError(e);
+                                                }
+                                            }
                                         }
                                     }
                                 }
@@ -634,33 +666,42 @@ namespace Capstones.UnityEngineEx
                                 }
                                 if (!ResManager.LoadAssetsFromObb)
                                 {
-                                    var arch = ResManager.ObbZipArchive;
-                                    if (arch != null)
+                                    var allobbs = ResManager.AllObbZipArchives;
+                                    if (allobbs != null)
                                     {
-                                        var entries = arch.Entries;
-                                        for (int i = 0; i < entries.Count; ++i)
+                                        for (int z = 0; z < allobbs.Length; ++z)
                                         {
-                                            try
+                                            var zip = allobbs[z];
+
+                                            var arch = zip;
+                                            if (arch != null)
                                             {
-                                                var entry = entries[i];
-                                                var name = entry.FullName;
-                                                if (name.StartsWith("spt/") && name != "spt/version.txt")
+                                                var entries = arch.Entries;
+                                                for (int i = 0; i < entries.Count; ++i)
                                                 {
-                                                    // copy
-                                                    using (var src = entry.Open())
+                                                    try
                                                     {
-                                                        using (var dst = PlatDependant.OpenWrite(ThreadSafeValues.UpdatePath + "/" + name))
+                                                        var entry = entries[i];
+                                                        var name = entry.FullName;
+                                                        if (name.StartsWith("spt/") && name != "spt/version.txt")
                                                         {
-                                                            src.CopyTo(dst);
+                                                            // copy
+                                                            using (var src = entry.Open())
+                                                            {
+                                                                using (var dst = PlatDependant.OpenWrite(ThreadSafeValues.UpdatePath + "/" + name))
+                                                                {
+                                                                    src.CopyTo(dst);
+                                                                }
+                                                            }
                                                         }
                                                     }
+                                                    catch (Exception e)
+                                                    {
+                                                        PlatDependant.LogError(e);
+                                                    }
+                                                    ++progress.Length;
                                                 }
                                             }
-                                            catch (Exception e)
-                                            {
-                                                PlatDependant.LogError(e);
-                                            }
-                                            ++progress.Length;
                                         }
                                     }
                                 }
@@ -673,8 +714,13 @@ namespace Capstones.UnityEngineEx
                             {
                                 if (IsAndroid)
                                 {
-                                    var archs = new[] { ResManager.AndroidApkZipArchive, ResManager.ObbZipArchive };
-                                    for (int i = 0; i < archs.Length; ++i)
+                                    List<ZipArchive> archs = new List<ZipArchive>(4) { ResManager.AndroidApkZipArchive };
+                                    var allobbs = ResManager.AllObbZipArchives;
+                                    if (allobbs != null)
+                                    {
+                                        archs.AddRange(allobbs);
+                                    }
+                                    for (int i = 0; i < archs.Count; ++i)
                                     {
                                         var arch = archs[i];
                                         if (arch != null)
@@ -770,16 +816,25 @@ namespace Capstones.UnityEngineEx
                                 }
                                 if (!ResManager.LoadAssetsFromObb)
                                 {
-                                    var zobb = ResManager.ObbZipArchive;
-                                    if (zobb != null)
+                                    var allobbs = ResManager.AllObbZipArchives;
+                                    if (allobbs != null)
                                     {
-                                        try
+                                        for (int z = 0; z < allobbs.Length; ++z)
                                         {
-                                            progress.Total += zobb.Entries.Count;
-                                        }
-                                        catch (Exception e)
-                                        {
-                                            PlatDependant.LogError(e);
+                                            var zip = allobbs[z];
+
+                                            var zobb = zip;
+                                            if (zobb != null)
+                                            {
+                                                try
+                                                {
+                                                    progress.Total += zobb.Entries.Count;
+                                                }
+                                                catch (Exception e)
+                                                {
+                                                    PlatDependant.LogError(e);
+                                                }
+                                            }
                                         }
                                     }
                                 }
@@ -869,37 +924,46 @@ namespace Capstones.UnityEngineEx
                                 }
                                 if (!ResManager.LoadAssetsFromObb)
                                 {
-                                    var arch = ResManager.ObbZipArchive;
-                                    if (arch != null)
+                                    var allobbs = ResManager.AllObbZipArchives;
+                                    if (allobbs != null)
                                     {
-                                        var entries = arch.Entries;
-                                        for (int i = 0; i < entries.Count; ++i)
+                                        for (int z = 0; z < allobbs.Length; ++z)
                                         {
-                                            try
+                                            var zip = allobbs[z];
+
+                                            var arch = zip;
+                                            if (arch != null)
                                             {
-                                                var entry = entries[i];
-                                                var name = entry.FullName;
-                                                if (name.StartsWith("spt/") && name != "spt/version.txt")
+                                                var entries = arch.Entries;
+                                                for (int i = 0; i < entries.Count; ++i)
                                                 {
-                                                    var file = name.Substring("spt/".Length);
-                                                    if (IsItemOld(file, _OldRunningKeys, _RunningVer))
+                                                    try
                                                     {
-                                                        // copy
-                                                        using (var src = entry.Open())
+                                                        var entry = entries[i];
+                                                        var name = entry.FullName;
+                                                        if (name.StartsWith("spt/") && name != "spt/version.txt")
                                                         {
-                                                            using (var dst = PlatDependant.OpenWrite(ThreadSafeValues.UpdatePath + "/spt/" + file))
+                                                            var file = name.Substring("spt/".Length);
+                                                            if (IsItemOld(file, _OldRunningKeys, _RunningVer))
                                                             {
-                                                                src.CopyTo(dst);
+                                                                // copy
+                                                                using (var src = entry.Open())
+                                                                {
+                                                                    using (var dst = PlatDependant.OpenWrite(ThreadSafeValues.UpdatePath + "/spt/" + file))
+                                                                    {
+                                                                        src.CopyTo(dst);
+                                                                    }
+                                                                }
                                                             }
                                                         }
                                                     }
+                                                    catch (Exception e)
+                                                    {
+                                                        PlatDependant.LogError(e);
+                                                    }
+                                                    ++progress.Length;
                                                 }
                                             }
-                                            catch (Exception e)
-                                            {
-                                                PlatDependant.LogError(e);
-                                            }
-                                            ++progress.Length;
                                         }
                                     }
                                 }

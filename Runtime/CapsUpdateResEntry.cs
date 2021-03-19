@@ -95,37 +95,46 @@ namespace Capstones.UnityEngineEx
                                 }
                             }
                             {
-                                var arch = ResManager.ObbZipArchive;
-                                if (arch != null)
+                                var allobbs = ResManager.AllObbZipArchives;
+                                if (allobbs != null)
                                 {
-                                    var entries = arch.Entries;
-                                    for (int i = 0; i < entries.Count; ++i)
+                                    for (int z = 0; z < allobbs.Length; ++z)
                                     {
-                                        if (async && AsyncWorkTimer.Check()) yield return null;
-                                        try
+                                        var zip = allobbs[z];
+
+                                        var arch = zip;
+                                        if (arch != null)
                                         {
-                                            var entry = entries[i];
-                                            var name = entry.FullName;
-                                            if (name.StartsWith("res/") && name != "res/version.txt")
+                                            var entries = arch.Entries;
+                                            for (int i = 0; i < entries.Count; ++i)
                                             {
-                                                if (!ResManager.LoadAssetsFromObb || entry.CompressedLength != entry.Length)
+                                                if (async && AsyncWorkTimer.Check()) yield return null;
+                                                try
                                                 {
-                                                    // copy
-                                                    using (var src = entry.Open())
+                                                    var entry = entries[i];
+                                                    var name = entry.FullName;
+                                                    if (name.StartsWith("res/") && name != "res/version.txt")
                                                     {
-                                                        using (var dst = PlatDependant.OpenWrite(ThreadSafeValues.UpdatePath + "/" + name))
+                                                        if (!ResManager.LoadAssetsFromObb || entry.CompressedLength != entry.Length)
                                                         {
-                                                            src.CopyTo(dst);
+                                                            // copy
+                                                            using (var src = entry.Open())
+                                                            {
+                                                                using (var dst = PlatDependant.OpenWrite(ThreadSafeValues.UpdatePath + "/" + name))
+                                                                {
+                                                                    src.CopyTo(dst);
+                                                                }
+                                                            }
                                                         }
                                                     }
                                                 }
+                                                catch (Exception e)
+                                                {
+                                                    PlatDependant.LogError(e);
+                                                }
+                                                ReportProgress("WorkingStepAdvance", null, 0);
                                             }
                                         }
-                                        catch (Exception e)
-                                        {
-                                            PlatDependant.LogError(e);
-                                        }
-                                        ReportProgress("WorkingStepAdvance", null, 0);
                                     }
                                 }
                             }
@@ -256,41 +265,50 @@ namespace Capstones.UnityEngineEx
                                 }
                             }
                             {
-                                var arch = ResManager.ObbZipArchive;
-                                if (arch != null)
+                                var allobbs = ResManager.AllObbZipArchives;
+                                if (allobbs != null)
                                 {
-                                    var entries = arch.Entries;
-                                    for (int i = 0; i < entries.Count; ++i)
+                                    for (int z = 0; z < allobbs.Length; ++z)
                                     {
-                                        if (async && AsyncWorkTimer.Check()) yield return null;
-                                        try
+                                        var zip = allobbs[z];
+
+                                        var arch = zip;
+                                        if (arch != null)
                                         {
-                                            var entry = entries[i];
-                                            var name = entry.FullName;
-                                            if (name.StartsWith("res/") && name != "res/version.txt")
+                                            var entries = arch.Entries;
+                                            for (int i = 0; i < entries.Count; ++i)
                                             {
-                                                if (!ResManager.LoadAssetsFromObb || entry.CompressedLength != entry.Length)
+                                                if (async && AsyncWorkTimer.Check()) yield return null;
+                                                try
                                                 {
-                                                    var part = name.Substring("res/".Length);
-                                                    if (IsResFileOld(part))
+                                                    var entry = entries[i];
+                                                    var name = entry.FullName;
+                                                    if (name.StartsWith("res/") && name != "res/version.txt")
                                                     {
-                                                        // copy
-                                                        using (var src = entry.Open())
+                                                        if (!ResManager.LoadAssetsFromObb || entry.CompressedLength != entry.Length)
                                                         {
-                                                            using (var dst = PlatDependant.OpenWrite(ThreadSafeValues.UpdatePath + "/" + name))
+                                                            var part = name.Substring("res/".Length);
+                                                            if (IsResFileOld(part))
                                                             {
-                                                                src.CopyTo(dst);
+                                                                // copy
+                                                                using (var src = entry.Open())
+                                                                {
+                                                                    using (var dst = PlatDependant.OpenWrite(ThreadSafeValues.UpdatePath + "/" + name))
+                                                                    {
+                                                                        src.CopyTo(dst);
+                                                                    }
+                                                                }
                                                             }
                                                         }
                                                     }
                                                 }
+                                                catch (Exception e)
+                                                {
+                                                    PlatDependant.LogError(e);
+                                                }
+                                                ReportProgress("WorkingStepAdvance", null, 0);
                                             }
                                         }
-                                        catch (Exception e)
-                                        {
-                                            PlatDependant.LogError(e);
-                                        }
-                                        ReportProgress("WorkingStepAdvance", null, 0);
                                     }
                                 }
                             }
@@ -553,7 +571,18 @@ namespace Capstones.UnityEngineEx
                             {
                                 try
                                 {
-                                    workcnt += ResManager.ObbZipArchive.Entries.Count;
+                                    var allobbs = ResManager.AllObbZipArchives;
+                                    if (allobbs != null)
+                                    {
+                                        for (int z = 0; z < allobbs.Length; ++z)
+                                        {
+                                            var zip = allobbs[z];
+                                            if (zip != null)
+                                            {
+                                                workcnt += zip.Entries.Count;
+                                            }
+                                        }
+                                    }
                                 }
                                 catch (Exception e)
                                 {
@@ -581,7 +610,18 @@ namespace Capstones.UnityEngineEx
                     {
                         try
                         {
-                            workcnt += ResManager.ObbZipArchive.Entries.Count;
+                            var allobbs = ResManager.AllObbZipArchives;
+                            if (allobbs != null)
+                            {
+                                for (int z = 0; z < allobbs.Length; ++z)
+                                {
+                                    var zip = allobbs[z];
+                                    if (zip != null)
+                                    {
+                                        workcnt += zip.Entries.Count;
+                                    }
+                                }
+                            }
                         }
                         catch (Exception e)
                         {
@@ -695,27 +735,39 @@ namespace Capstones.UnityEngineEx
                         }
                     }
                     { // Obb ver.
-                        var arch = ResManager.ObbZipArchive;
-                        if (arch != null)
+                        var allobbs = ResManager.AllObbZipArchives;
+                        if (allobbs != null)
                         {
-                            try
+                            for (int z = 0; z < allobbs.Length; ++z)
                             {
-                                var entry = arch.GetEntry("res/version.txt");
-                                if (entry != null)
+                                var zip = allobbs[z];
+
+                                var arch = zip;
+                                if (arch != null)
                                 {
-                                    using (var stream = entry.Open())
+                                    try
                                     {
-                                        using (var sr = new System.IO.StreamReader(stream))
+                                        var entry = arch.GetEntry("res/version.txt");
+                                        if (entry != null)
                                         {
-                                            var strver = sr.ReadLine();
-                                            int.TryParse(strver, out obbVer);
+                                            using (var stream = entry.Open())
+                                            {
+                                                using (var sr = new System.IO.StreamReader(stream))
+                                                {
+                                                    var strver = sr.ReadLine();
+                                                    if (int.TryParse(strver, out obbVer))
+                                                    {
+                                                        break;
+                                                    }
+                                                }
+                                            }
                                         }
                                     }
+                                    catch (Exception e)
+                                    {
+                                        PlatDependant.LogError(e);
+                                    }
                                 }
-                            }
-                            catch (Exception e)
-                            {
-                                PlatDependant.LogError(e);
                             }
                         }
                     }
