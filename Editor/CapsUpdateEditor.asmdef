@@ -4,7 +4,9 @@
         "ResManager",
         "Unity.IO.Compression",
         "ResManagerEditor",
-        "ResManagerEditor.ResBuilder"
+        "ResManagerEditor.ResBuilder",
+        "ResManagerEditorEntry",
+        "ResManagerEntry"
     ],
     "includePlatforms": [
         "Editor"
