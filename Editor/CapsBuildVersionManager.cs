@@ -112,10 +112,10 @@ namespace Capstones.UnityEditorEx
                             int.TryParse(parts[1], out verpatch);
                             if (parts.Length > 2)
                             {
-                                int.TryParse(parts[parts.Length - 1], out verbuild);
+                                int.TryParse(parts[2], out verbuild);
                                 if (parts.Length > 3)
                                 {
-                                    int.TryParse(parts[2], out verres);
+                                    int.TryParse(parts[parts.Length - 1], out verres);
                                 }
                             }
                         }
@@ -135,19 +135,17 @@ namespace Capstones.UnityEditorEx
                     }
                 }
             }
-            if (appver <= 0)
+            appver = Math.Max(appver, verbuild);
             {
-                appver = verbuild;
+                var vercode = PlayerSettings.Android.bundleVersionCode;
+                vercode /= 100000;
+                appver = Math.Max(appver, vercode);
             }
-            if (appver <= 0)
             {
-                appver = PlayerSettings.Android.bundleVersionCode;
-                appver /= 100000;
-            }
-            if (appver <= 0)
-            {
-                int.TryParse(PlayerSettings.iOS.buildNumber, out appver);
-                appver /= 100000;
+                int vercode;
+                int.TryParse(PlayerSettings.iOS.buildNumber, out vercode);
+                vercode /= 100000;
+                appver = Math.Max(appver, vercode);
             }
             if (appver < 0)
             {
@@ -189,26 +187,24 @@ namespace Capstones.UnityEditorEx
             {
                 resver = lastBuildVersion;
             }
-            if (resver <= 0)
+            resver = Math.Max(resver, verres);
             {
-                resver = verres;
+                var vercode = PlayerSettings.Android.bundleVersionCode;
+                vercode %= 100000;
+                resver = Math.Max(resver, vercode);
             }
-            if (resver <= 0)
             {
-                resver = PlayerSettings.Android.bundleVersionCode;
-                resver %= 100000;
-            }
-            if (resver <= 0)
-            {
-                int.TryParse(PlayerSettings.iOS.buildNumber, out resver);
-                resver %= 100000;
+                int vercode;
+                int.TryParse(PlayerSettings.iOS.buildNumber, out vercode);
+                vercode %= 100000;
+                resver = Math.Max(resver, vercode);
             }
             if (resver < 0)
             {
                 resver = 0;
             }
 
-            var newvername = vermain + "." + verpatch + "." + resver + "." + appver;
+            var newvername = vermain + "." + verpatch + "." + appver + "." + resver;
             PlayerSettings.bundleVersion = newvername;
 
             var newvercode = appver * 100000 + resver;
