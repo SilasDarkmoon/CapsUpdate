@@ -210,6 +210,7 @@ namespace Capstones.UnityEditorEx
             var newvercode = appver * 100000 + resver;
             PlayerSettings.Android.bundleVersionCode = newvercode;
             PlayerSettings.iOS.buildNumber = newvercode.ToString();
+            AssetDatabase.SaveAssets();
         }
     }
 }
