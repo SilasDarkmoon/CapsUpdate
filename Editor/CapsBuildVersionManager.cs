@@ -96,8 +96,8 @@ namespace Capstones.UnityEditorEx
         {
             int vermain = 0;
             int verpatch = 0;
-            int verres = 0;
             int verbuild = 0;
+            int verres = 0;
             var vername = PlayerSettings.bundleVersion;
             if (!string.IsNullOrEmpty(vername))
             {
@@ -204,7 +204,7 @@ namespace Capstones.UnityEditorEx
                 resver = 0;
             }
 
-            var newvername = vermain + "." + verpatch + "." + appver + "." + resver;
+            var newvername = vermain + "." + verpatch + "." + appver;// + "." + resver;
             PlayerSettings.bundleVersion = newvername;
 
             var newvercode = appver * 100000 + resver;
