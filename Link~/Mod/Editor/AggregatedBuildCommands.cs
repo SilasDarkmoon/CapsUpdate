@@ -53,15 +53,6 @@ namespace Capstones.UnityEditorEx
             CapsResBuilder.BuildingParams = null;
             CapsUpdateBuilder.BuildNearestUpdate();
         }
-        [MenuItem("Res/Build All (Full)", priority = 200170)]
-        public static void BuildScripts()
-        {
-            CapsResBuilder.BuildingParams = CapsResBuilder.ResBuilderParams.Create();
-            var work = CapsSptBuilder.BuildSptAsync(null, null, new[] { new CapsSptBuilder.SptBuilderEx_RawCopy() });
-            while (work.MoveNext()) ;
-            CapsResBuilder.BuildingParams = null;
-            CapsUpdateBuilder.BuildNearestUpdate();
-        }
         [MenuItem("Res/Build All (Full, With Progress Window)", priority = 200170)]
         public static void BuildAllFullWithProg()
         {
