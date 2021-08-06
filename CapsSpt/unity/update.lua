@@ -34,7 +34,7 @@ function update.update(funcComplete, funcReport)
                 end
             end
 
-            local version = resp.val.update
+            local version = resp.val.HotUpdate
             if type(version) == "table" then
                 local cvtable = _G["___resver"]
                 if type(cvtable) ~= "table" then
