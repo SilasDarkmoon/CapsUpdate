@@ -724,7 +724,6 @@ namespace Capstones.UnityEngineEx
                                         {
                                             var strver = sr.ReadLine();
                                             int.TryParse(strver, out packageVer);
-                                            Debug.Log("@@@@@@@@@strver =" + strver);
                                         }
                                     }
                                 }
@@ -782,7 +781,6 @@ namespace Capstones.UnityEngineEx
                         {
                             var strver = vertxt.text;
                             int.TryParse(strver, out packageVer);
-                            Debug.Log("@@@@@@@@@strver2 =" + strver);
                         }
                         catch (Exception e)
                         {
@@ -800,7 +798,6 @@ namespace Capstones.UnityEngineEx
                     {
                         var strver = sr.ReadLine();
                         int.TryParse(strver, out packageVer);
-                        Debug.Log("@@@@@@@@@strver3 =" + strver);
                     }
                 }
             }
@@ -858,8 +855,6 @@ namespace Capstones.UnityEngineEx
                         sw.Write(kvp.Key);
                         sw.Write("|");
                         sw.WriteLine(kvp.Value);
-                        Debug.Log("@@@@@@@@@@@@kvp.Key=" + kvp.Key);
-                        Debug.Log("@@@@@@@@@@@@kvp.Value=" + kvp.Value);
                     }
                 }
             }
@@ -932,12 +927,9 @@ namespace Capstones.UnityEngineEx
             ParseResVersionInFolder(ThreadSafeValues.UpdatePath + "/pending/res");
             var pverpath = ThreadSafeValues.UpdatePath + "/pending/res/ver.txt";
             var pver = ParseResVersion(pverpath);
-            Debug.Log("@@@@@@@@@@@@pver=" + pver);
             foreach (var kvpver in pver)
             {
                 resver[kvpver.Key] = kvpver.Value;
-                Debug.Log("@@@@@@@@@@@@kvpver.Key=" + kvpver.Key);
-                Debug.Log("@@@@@@@@@@@@kvpver.Value=" + kvpver.Value);
             }
             return resver;
         }
