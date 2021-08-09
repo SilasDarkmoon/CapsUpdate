@@ -34,12 +34,8 @@ function update.update(funcComplete, funcReport)
                 end
             end
 
-            local coldUpdate = resp.val.ColdUpdate
-            local version = resp.val.HotUpdate
-            if type(coldUpdate) == "table" then
-                funcReport('force_cold', true)
-                return
-            elseif type(version) == "table" then
+            local version = resp.val.update
+            if type(version) == "table" then
                 local cvtable = _G["___resver"]
                 if type(cvtable) ~= "table" then
                     cvtable = {}
