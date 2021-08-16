@@ -145,7 +145,7 @@ function update.update(funcComplete, funcReport)
                                             rlen = len
                                         end
                                         while not req.IsDone do
-                                            if not reqTotal and req.Total > 0 then
+                                            if req.Total > 0 and (not reqTotal or req.Total > reqTotal) then
                                                 reqTotal = req.Total
                                                 rlen = reqTotal
                                             end
