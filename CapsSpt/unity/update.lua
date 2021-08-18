@@ -84,14 +84,14 @@ function update.update(funcComplete, funcReport)
                         local itemsuccess = false
                         local retry_wait = 450
 
-                        if funcReport then
-                            funcReport("prog", i)
-                            funcReport("key", key)
-                            funcReport("ver", ver)
-                        end
-
                         local updateFileIndex = 0
                         while not itemsuccess do
+                            if funcReport then
+                                funcReport("prog", i)
+                                funcReport("key", key)
+                                funcReport("ver", ver)
+                            end
+
                             while retry_wait < 450 do
                                 retry_wait = retry_wait + 1
                                 unity.waitForNextEndOfFrame()
