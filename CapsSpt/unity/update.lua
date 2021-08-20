@@ -132,7 +132,6 @@ function update.update(funcComplete, funcReport)
                                     if stream and stream ~= clr.null then
                                         dump("success OpenAppend update zip file: "..zippath)
                                         local req = clr.Capstones.Net.HttpRequestBase.Create(url, nil, nil, nil)
-                                        dump(req, '^^^^^^^^^^test req')
                                         req.DestStream = stream
                                         req.RangeEnabled = enablerange
                                         req:StartRequest()
@@ -140,7 +139,6 @@ function update.update(funcComplete, funcReport)
                                         local reqReceivedLength = 0
                                         local reqReceiveLastTick = clr.System.Environment.TickCount
                                         local rlen = tonumber(v.rlen)
-                                        dump(v, '^^^^^^^^^^test v')
                                         if rlen <= 0 then
                                             rlen = len
                                         end
@@ -152,8 +150,6 @@ function update.update(funcComplete, funcReport)
                                             if req.Length > reqReceivedLength then
                                                 reqReceivedLength = req.Length
                                                 reqReceiveLastTick = clr.System.Environment.TickCount
-                                                dump(reqReceivedLength, '^^^^^^^^^^test reqReceivedLength')
-                                                dump(rlen, '^^^^^^^^^^test rlen')
                                                 if funcReport then
                                                     if rlen > 0 then
                                                         funcReport("percent", math.clamp(reqReceivedLength / rlen, 0, 1))
