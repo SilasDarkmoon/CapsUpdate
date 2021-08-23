@@ -19,6 +19,26 @@ function update.update(funcComplete, funcReport)
         ignoreUpdate = ___CONFIG__IGNORE_UPDATE
     end
 
+    if not ___CONFIG__UPDATE_FILE_EXT_HANDLERS then
+        ___CONFIG__UPDATE_FILE_EXT_HANDLERS = {}
+    end
+    if not ___CONFIG__UPDATE_FILE_EXT_HANDLERS[".obb"] then
+        ___CONFIG__UPDATE_FILE_EXT_HANDLERS[".obb"] = {
+            download = true,
+            checkfunc = "zip",
+            applyfunc = function(key, zippath, v)
+                local obbname = key
+                if string.sub(key, 1, 4) == "obb-" then
+                    obbname = string.sub(key, 5, -1)
+                end
+
+                local obbpath = clr.updatepath.."/obb/"..obbname.."."..clr.Capstones.UnityEngineEx.ResManager.AppVer..".obb"
+                clr.Capstones.UnityEngineEx.PlatDependant.MoveFile(zippath, obbpath)
+                return true
+            end,
+        }
+    end
+
     -- if ignoreUpdate and req.reportVersion then
     --     -- when we ignore update, we should use another request to report our versions to server in order to do version check.
     --     req.reportVersion(nil, { [404] = true })
@@ -104,7 +124,20 @@ function update.update(funcComplete, funcReport)
                                 end
                                 itemsuccess = true
                             else
-                                if string.sub(url, -4) == ".zip" then
+                                local extindex, ext
+                                while true do
+                                    local index = string.find(url, ".", (extindex or 0) + 1, true)
+                                    if index then
+                                        extindex = index
+                                    else
+                                        break
+                                    end
+                                end
+                                if extindex then
+                                    ext = string.sub(url, extindex)
+                                end
+                                ext = ext or ""
+                                if ext == ".zip" or type(___CONFIG__UPDATE_FILE_EXT_HANDLERS[ext]) == "table" and ___CONFIG__UPDATE_FILE_EXT_HANDLERS[ext].download then
                                     dump(v)
                                     local zippath = Application.temporaryCachePath.."/download/update"..updateFileIndex..".zip"
                                     local enablerange = false
@@ -178,31 +211,41 @@ function update.update(funcComplete, funcReport)
                                             dump("update error - download error")
                                             dump(msg)
                                         else
-                                            if clr.Capstones.UnityEngineEx.CapsUpdateUtils.CheckZipFile(zippath) then
-                                                if funcReport then
-                                                    funcReport("unzip")
-                                                end
-                                                dump("unzip...")
-
-                                                local prog = PlatDependant.UnzipAsync(zippath, clr.updatepath.."/pending")
-                                                while not prog.Done do
+                                            local checkpass = true
+                                            if ext == ".zip" or type(___CONFIG__UPDATE_FILE_EXT_HANDLERS[ext]) == "table" and ___CONFIG__UPDATE_FILE_EXT_HANDLERS[ext].checkfunc == "zip" then
+                                                checkpass = clr.Capstones.UnityEngineEx.CapsUpdateUtils.CheckZipFile(zippath)
+                                            elseif type(___CONFIG__UPDATE_FILE_EXT_HANDLERS[ext]) == "table" and type(___CONFIG__UPDATE_FILE_EXT_HANDLERS[ext].checkfunc) == "function" then
+                                                checkpass = ___CONFIG__UPDATE_FILE_EXT_HANDLERS[ext].checkfunc(zippath)
+                                            end
+                                            if checkpass then
+                                                if ext == ".zip" then
                                                     if funcReport then
-                                                        funcReport("unzipprog")
+                                                        funcReport("unzip")
                                                     end
-                                                    retry_wait = retry_wait + 1
-                                                    unity.waitForNextEndOfFrame()
-                                                end
-                                                PlatDependant.DeleteFile(zippath)
-                                                dump("deleted "..zippath)
+                                                    dump("unzip...")
 
-                                                if prog.Error and prog.Error ~= "" then
-                                                    if funcReport then
-                                                        funcReport("error", prog.Error)
+                                                    local prog = PlatDependant.UnzipAsync(zippath, clr.updatepath.."/pending")
+                                                    while not prog.Done do
+                                                        if funcReport then
+                                                            funcReport("unzipprog")
+                                                        end
+                                                        retry_wait = retry_wait + 1
+                                                        unity.waitForNextEndOfFrame()
                                                     end
-                                                    dump("update error - zip file error")
-                                                else
-                                                    itemsuccess = true
-                                                    dump("success "..url)
+                                                    PlatDependant.DeleteFile(zippath)
+                                                    dump("deleted "..zippath)
+
+                                                    if prog.Error and prog.Error ~= "" then
+                                                        if funcReport then
+                                                            funcReport("error", prog.Error)
+                                                        end
+                                                        dump("update error - zip file error")
+                                                    else
+                                                        itemsuccess = true
+                                                        dump("success "..url)
+                                                    end
+                                                elseif type(___CONFIG__UPDATE_FILE_EXT_HANDLERS[ext]) == "table" and type(___CONFIG__UPDATE_FILE_EXT_HANDLERS[ext].applyfunc) == "function" then
+                                                    itemsuccess = ___CONFIG__UPDATE_FILE_EXT_HANDLERS[ext].applyfunc(key, zippath, v)
                                                 end
                                             else
                                                 if funcReport then
@@ -220,22 +263,20 @@ function update.update(funcComplete, funcReport)
                                         end
                                         dump("cannot write update zip file: "..zippath)
                                     end
-                                elseif ___CONFIG__UPDATE_FILE_EXT_HANDLERS then
-                                    local extindex
-                                    while true do
-                                        local index = string.find(url, ".", extindex or 1, true)
-                                        if index then
-                                            extindex = index
-                                        else
-                                            break
-                                        end
+                                elseif ___CONFIG__UPDATE_FILE_EXT_HANDLERS[ext] then
+                                    local handler = ___CONFIG__UPDATE_FILE_EXT_HANDLERS[ext]
+                                    if type(handler) == "function" then
+                                        itemsuccess = handler(key, url, v)
+                                    elseif type(handler) == "table" and type(handler.handler) == "function" then
+                                        itemsuccess = handler.handler(key, url, v)
+                                    else
+                                        funcReport("error", "cannot process file of type "..ext)
+                                        dump("error, cannot process file of type "..ext)
+                                        itemsuccess = true
                                     end
-                                    if extindex then
-                                        local ext = string.sub(url, extindex)
-                                        if ___CONFIG__UPDATE_FILE_EXT_HANDLERS[ext] then
-                                            ___CONFIG__UPDATE_FILE_EXT_HANDLERS[ext](key, url, v)
-                                        end
-                                    end
+                                else
+                                    funcReport("error", "cannot process file of type "..ext)
+                                    dump("error, cannot process file of type "..ext)
                                     itemsuccess = true
                                 end
                             end

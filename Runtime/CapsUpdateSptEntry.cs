@@ -1118,6 +1118,25 @@ namespace Capstones.UnityEngineEx
             {
                 vers["package"] = Math.Max(_PackageVer, _ObbVer);
             }
+            List<string> missingObbNames = new List<string>();
+            var allobbs = ResManager.AllObbNames;
+            var allobbzips = ResManager.AllObbZipArchives;
+            if (allobbs != null)
+            {
+                for (int i = 0; i < allobbs.Length; ++i)
+                {
+                    var obbname = allobbs[i];
+                    var obbzip = (allobbzips == null || i >= allobbzips.Length) ? null : allobbzips[i];
+                    if (obbzip == null)
+                    {
+                        missingObbNames.Add(obbname);
+                    }
+                }
+                for (int i = 0; i < missingObbNames.Count; ++i)
+                {
+                    vers["obb-" + missingObbNames[i]] = 0;
+                }
+            }
 
             CrossEvent.TrigClrEvent("SptManifestReady", new CrossEvent.RawEventData<Dictionary<string, int>>(vers));
         }

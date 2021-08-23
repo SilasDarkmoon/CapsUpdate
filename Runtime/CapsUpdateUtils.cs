@@ -39,7 +39,11 @@ namespace Capstones.UnityEngineEx
                             return false;
                         }
                         var etor = entries.GetEnumerator();
-                        etor.MoveNext();
+                        if (etor.MoveNext() && etor.Current != null)
+                        {
+                            var estream = etor.Current.Open();
+                            estream.Dispose();
+                        }
                     }
                 }
                 catch (Exception e)
