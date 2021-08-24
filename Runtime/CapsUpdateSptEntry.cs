@@ -220,8 +220,12 @@ namespace Capstones.UnityEngineEx
                     {
                         for (int z = 0; z < allobbs.Length; ++z)
                         {
-                            var zip = allobbs[z];
+                            if (!PlatDependant.IsFileExist(ResManager.AllObbPaths[z]))
+                            { // means the obb is to be downloaded.
+                                continue;
+                            }
 
+                            var zip = allobbs[z];
                             var arch = zip;
                             if (arch != null)
                             {
@@ -337,8 +341,12 @@ namespace Capstones.UnityEngineEx
                         {
                             for (int z = allobbs.Length - 1; z >= 0; --z)
                             {
-                                var zip = allobbs[z];
+                                if (!PlatDependant.IsFileExist(ResManager.AllObbPaths[z]))
+                                { // means the obb is to be downloaded.
+                                    continue;
+                                }
 
+                                var zip = allobbs[z];
                                 var arch = zip;
                                 if (arch != null)
                                 {
@@ -599,8 +607,12 @@ namespace Capstones.UnityEngineEx
                                     {
                                         for (int z = 0; z < allobbs.Length; ++z)
                                         {
-                                            var zip = allobbs[z];
+                                            if (!PlatDependant.IsFileExist(ResManager.AllObbPaths[z]))
+                                            { // means the obb is to be downloaded.
+                                                continue;
+                                            }
 
+                                            var zip = allobbs[z];
                                             var zobb = zip;
                                             if (zobb != null)
                                             {
@@ -671,8 +683,12 @@ namespace Capstones.UnityEngineEx
                                     {
                                         for (int z = 0; z < allobbs.Length; ++z)
                                         {
-                                            var zip = allobbs[z];
+                                            if (!PlatDependant.IsFileExist(ResManager.AllObbPaths[z]))
+                                            { // means the obb is to be downloaded.
+                                                continue;
+                                            }
 
+                                            var zip = allobbs[z];
                                             var arch = zip;
                                             if (arch != null)
                                             {
@@ -821,8 +837,12 @@ namespace Capstones.UnityEngineEx
                                     {
                                         for (int z = 0; z < allobbs.Length; ++z)
                                         {
-                                            var zip = allobbs[z];
+                                            if (!PlatDependant.IsFileExist(ResManager.AllObbPaths[z]))
+                                            { // means the obb is to be downloaded.
+                                                continue;
+                                            }
 
+                                            var zip = allobbs[z];
                                             var zobb = zip;
                                             if (zobb != null)
                                             {
@@ -929,8 +949,12 @@ namespace Capstones.UnityEngineEx
                                     {
                                         for (int z = 0; z < allobbs.Length; ++z)
                                         {
-                                            var zip = allobbs[z];
+                                            if (!PlatDependant.IsFileExist(ResManager.AllObbPaths[z]))
+                                            { // means the obb is to be downloaded.
+                                                continue;
+                                            }
 
+                                            var zip = allobbs[z];
                                             var arch = zip;
                                             if (arch != null)
                                             {
