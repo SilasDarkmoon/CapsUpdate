@@ -294,6 +294,23 @@ function update.update(funcComplete, funcReport)
     end
 end
 
+local function deleteFilesInFolder(folder)
+    local files = clr.table(PlatDependant.GetAllFiles(folder))
+    for i, v in ipairs(files) do
+        PlatDependant.DeleteFile(v)
+    end
+end
+
+function update.clear()
+    res.Cleanup()
+    deleteFilesInFolder(clr.updatepath.."/res")
+    deleteFilesInFolder(clr.updatepath.."/spt")
+    deleteFilesInFolder(clr.updatepath.."/pending")
+    deleteFilesInFolder(clr.updatepath.."/obb")
+    deleteFilesInFolder(Application.temporaryCachePath.."/download")
+    unity.restart()
+end
+
 _G['update'] = update
 
 return update
