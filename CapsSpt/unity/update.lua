@@ -44,10 +44,8 @@ function update.update(funcComplete, funcReport)
     --     req.reportVersion(nil, { [404] = true })
     -- end
     if not ignoreUpdate and req.checkVersion then
-        luaevt.trig("TrackEventToSDK", "device_version_req")
         local resp = req.checkVersion(nil, ___CONFIG__UPDATE_ERR_CODES)
         if api.success(resp) then
-            luaevt.trig("TrackEventToSDK", "device_version_return")
             if ___CONFIG__UPDATE_EX_HANDLERS and resp.val.ex then
                 for k, v in pairs(resp.val.ex) do
                     if ___CONFIG__UPDATE_EX_HANDLERS[k] then
