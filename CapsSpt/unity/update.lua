@@ -308,6 +308,7 @@ function update.clear()
     deleteFilesInFolder(clr.updatepath.."/pending")
     deleteFilesInFolder(clr.updatepath.."/obb")
     deleteFilesInFolder(Application.temporaryCachePath.."/download")
+    clr.UnityEngine.PlayerPrefs.DeleteKey("___TEMP__HOTFIX_RECORDED_VERSION")
     unity.restart()
 end
 
