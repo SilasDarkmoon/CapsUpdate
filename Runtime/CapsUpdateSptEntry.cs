@@ -804,8 +804,6 @@ namespace Capstones.UnityEngineEx
                                 sw.Flush();
                             }
                             PlatDependant.MoveFile(versionfiletmp, versionfile);
-                            //PrepareRuntimeManifest();
-                            progress.Done = true;
                             return;
                         }
                         else if (_OldRunningKeys != null && _OldRunningKeys.Count > 0)
@@ -1030,8 +1028,9 @@ namespace Capstones.UnityEngineEx
                                 sw.Flush();
                             }
                             PlatDependant.MoveFile(versionfiletmp, versionfile);
-                            //PrepareRuntimeManifest();
-                            progress.Done = true;
+                            var manifile = ThreadSafeValues.UpdatePath + "/spt/manifest.m.txt";
+                            PlatDependant.DeleteFile(manifile);
+                            //CrossEvent.TrigEvent("ResetSptRuntimeManifest");
                             return;
                         }
                     }
@@ -1059,6 +1058,10 @@ namespace Capstones.UnityEngineEx
                             {
                                 PlatDependant.MoveFile(rawfile, updatedir + file);
                             }
+                            else
+                            {
+                                PlatDependant.DeleteFile(rawfile);
+                            }
                         }
                         else
                         {
@@ -1084,10 +1087,13 @@ namespace Capstones.UnityEngineEx
                             sw.Flush();
                         }
                         PlatDependant.MoveFile(versionfiletmp, versionfile);
+                    }
+                    if (pendingfiles.Length > 0)
+                    {
+                        var manifile = ThreadSafeValues.UpdatePath + "/spt/manifest.m.txt";
+                        PlatDependant.DeleteFile(manifile);
                         //CrossEvent.TrigEvent("ResetSptRuntimeManifest");
                     }
-                    //PrepareRuntimeManifest();
-                    progress.Done = true;
                     return;
                 }
             }
@@ -1098,6 +1104,7 @@ namespace Capstones.UnityEngineEx
             }
             finally
             {
+                PrepareRuntimeManifest();
                 progress.Done = true;
             }
         }
@@ -1202,7 +1209,7 @@ namespace Capstones.UnityEngineEx
                         yield return null;
                     }
                 }
-                PrepareRuntimeManifest();
+                //PrepareRuntimeManifest();
                 yield break;
             }
 
