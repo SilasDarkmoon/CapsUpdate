@@ -1058,10 +1058,6 @@ namespace Capstones.UnityEngineEx
                             {
                                 PlatDependant.MoveFile(rawfile, updatedir + file);
                             }
-                            else
-                            {
-                                PlatDependant.DeleteFile(rawfile);
-                            }
                         }
                         else
                         {

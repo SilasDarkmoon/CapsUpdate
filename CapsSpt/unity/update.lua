@@ -229,6 +229,11 @@ function update.update(funcComplete, funcReport)
                                                     end
                                                     dump("unzip...")
 
+                                                    local unzipingFlagFile = PlatDependant.OpenWriteText(clr.updatepath.."/pending/unzipping.flag.txt")
+                                                    if unzipingFlagFile and unzipingFlagFile ~= clr.null then
+                                                        unzipingFlagFile:Write(zippath)
+                                                        unzipingFlagFile:Dispose()
+                                                    end
                                                     local prog = PlatDependant.UnzipAsync(zippath, clr.updatepath.."/pending")
                                                     while not prog.Done do
                                                         if funcReport then
@@ -238,6 +243,7 @@ function update.update(funcComplete, funcReport)
                                                         unity.waitForNextEndOfFrame()
                                                     end
                                                     PlatDependant.DeleteFile(zippath)
+                                                    PlatDependant.DeleteFile(clr.updatepath.."/pending/unzipping.flag.txt")
                                                     dump("deleted "..zippath)
 
                                                     if prog.Error and prog.Error ~= "" then

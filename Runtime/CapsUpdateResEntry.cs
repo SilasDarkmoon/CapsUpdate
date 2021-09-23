@@ -34,6 +34,33 @@ namespace Capstones.UnityEngineEx
             }
             public IEnumerator InitAsync(bool async)
             {
+                var unzipingFlagFilePath = ThreadSafeValues.UpdatePath + "/pending/unzipping.flag.txt";
+                if (PlatDependant.IsFileExist(unzipingFlagFilePath))
+                { // killed when unzipping?
+                    string zippath = null;
+                    using (var sr = PlatDependant.OpenReadText(unzipingFlagFilePath))
+                    {
+                        zippath = sr.ReadLine();
+                    }
+
+                    if (zippath != null && PlatDependant.IsFileExist(zippath))
+                    {
+                        var prog_unzip = PlatDependant.UnzipAsync(zippath, ThreadSafeValues.UpdatePath + "/pending");
+                        while (!prog_unzip.Done)
+                        {
+                            if (prog_unzip.Total > 0)
+                            {
+                                var curstep = (int)(prog_unzip.Length * 100 / prog_unzip.Total);
+                                ReportProgress("WorkingStepInPhase", null, curstep);
+                            }
+                            if (async) yield return null;
+                            else PlatDependant.Sleep(100);
+                        }
+                        PlatDependant.DeleteFile(zippath);
+                    }
+                    PlatDependant.DeleteFile(unzipingFlagFilePath);
+                }
+
                 if (_PackageVer > 0 || _ObbVer > 0)
                 {
                     if (_RunningVer == null)
@@ -427,6 +454,22 @@ namespace Capstones.UnityEngineEx
             }
             public int CountWorkStep()
             {
+                int unzipCount = 0;
+                var unzipingFlagFilePath = ThreadSafeValues.UpdatePath + "/pending/unzipping.flag.txt";
+                if (PlatDependant.IsFileExist(unzipingFlagFilePath))
+                { // killed when unzipping?
+                    string zippath = null;
+                    using (var sr = PlatDependant.OpenReadText(unzipingFlagFilePath))
+                    {
+                        zippath = sr.ReadLine();
+                    }
+
+                    if (zippath != null && PlatDependant.IsFileExist(zippath))
+                    {
+                        unzipCount = 100;
+                    }
+                }
+
                 _PackageVer = 0;
                 _ObbVer = 0;
                 _PackageResKeys = null;
@@ -692,7 +735,7 @@ namespace Capstones.UnityEngineEx
                     }
 
                     _PendingFiles = PlatDependant.GetAllFiles(ThreadSafeValues.UpdatePath + "/pending/res/");
-                    return _PendingFiles.Length;
+                    return _PendingFiles.Length + unzipCount;
                 }
                 else
                 {
@@ -703,7 +746,7 @@ namespace Capstones.UnityEngineEx
 
                     _PendingFiles = PlatDependant.GetAllFiles(ThreadSafeValues.UpdatePath + "/pending/res/");
                     _UpdateFiles = PlatDependant.GetAllFiles(ThreadSafeValues.UpdatePath + "/res/");
-                    return workcnt + _PendingFiles.Length + _UpdateFiles.Length;
+                    return workcnt + _PendingFiles.Length + _UpdateFiles.Length + unzipCount;
                 }
             }
         }
