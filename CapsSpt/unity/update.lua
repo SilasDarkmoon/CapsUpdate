@@ -161,7 +161,12 @@ function update.update(funcComplete, funcReport)
                                             rangestream:Dispose()
                                         end
                                     end
-                                    local stream = PlatDependant.OpenAppend(zippath)
+                                    local stream
+                                    if PlatDependant.OpenReadWrite then
+                                        stream = PlatDependant.OpenReadWrite(zippath)
+                                    else
+                                        stream = PlatDependant.OpenAppend(zippath)
+                                    end
                                     if stream and stream ~= clr.null then
                                         dump("success OpenAppend update zip file: "..zippath)
                                         local req = clr.Capstones.Net.HttpRequestBase.Create(url, nil, nil, nil)
