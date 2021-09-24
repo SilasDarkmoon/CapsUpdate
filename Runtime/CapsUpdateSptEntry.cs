@@ -1101,6 +1101,7 @@ namespace Capstones.UnityEngineEx
             finally
             {
                 PrepareRuntimeManifest();
+                ResManager.UnloadAllObbs(); // Unload Thread Static Stream
                 progress.Done = true;
             }
         }
