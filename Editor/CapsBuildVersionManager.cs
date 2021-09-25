@@ -89,7 +89,13 @@ namespace Capstones.UnityEditorEx
         }
         public void OnPostprocessBuild(BuildReport report)
         {
-            SyncVersion(true);
+            bool increaseAppVer = true;
+            int ret = PlayerPrefs.GetInt("___IS_INCREASE_APP_VER");
+            if (ret == 0)
+            {
+                increaseAppVer = false;
+            }
+            SyncVersion(increaseAppVer);
         }
 
         public static void SyncVersion(bool increaseAppVer)
