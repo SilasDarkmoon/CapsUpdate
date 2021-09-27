@@ -90,8 +90,8 @@ namespace Capstones.UnityEditorEx
         public void OnPostprocessBuild(BuildReport report)
         {
             bool increaseAppVer = true;
-            int ret = PlayerPrefs.GetInt("___IS_INCREASE_APP_VER");
-            if (ret == 0)
+            bool ret = EditorPrefs.GetBool("___IS_INCREASE_APP_VER");
+            if (!ret)
             {
                 increaseAppVer = false;
             }
