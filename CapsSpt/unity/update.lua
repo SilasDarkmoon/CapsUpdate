@@ -206,9 +206,9 @@ function update.update(funcComplete, funcReport)
                                         if req.Error and req.Error ~= "" then
                                             local msg = req.Error
                                             if msg == "timedout" or msg == "cancelled" then
-                                                msg = clr.transstr("timedOut")
+                                                msg = "timedOut"
                                             else
-                                                msg = clr.transstr("networkError")
+                                                msg = "networkError"
                                             end
                                             if funcReport then
                                                 funcReport("error", msg)
