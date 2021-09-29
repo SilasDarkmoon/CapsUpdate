@@ -90,10 +90,9 @@ namespace Capstones.UnityEditorEx
         public void OnPostprocessBuild(BuildReport report)
         {
             bool increaseAppVer = true;
-            bool ret = EditorPrefs.GetBool("___IS_INCREASE_APP_VER");
-            if (!ret)
+            if (EditorPrefs.HasKey("___IS_INCREASE_APP_VER"))
             {
-                increaseAppVer = false;
+                increaseAppVer = EditorPrefs.GetBool("___IS_INCREASE_APP_VER");
             }
             SyncVersion(increaseAppVer);
         }
