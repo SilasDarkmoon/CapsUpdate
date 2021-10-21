@@ -1162,7 +1162,11 @@ namespace Capstones.UnityEngineEx
                 }
                 for (int i = 0; i < missingObbNames.Count; ++i)
                 {
-                    vers["obb-" + missingObbNames[i]] = 0;
+                    var obbname = missingObbNames[i];
+                    if (!obbname.StartsWith("delayed", StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        vers["obb-" + obbname] = 0;
+                    }
                 }
             }
 

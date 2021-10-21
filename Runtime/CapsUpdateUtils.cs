@@ -54,5 +54,48 @@ namespace Capstones.UnityEngineEx
             }
             return true;
         }
+
+        public static string[] GetDelayedObbNames()
+        {
+            List<string> missingObbNames = new List<string>();
+            var allobbs = ResManager.AllObbNames;
+            var allobbzips = ResManager.AllObbZipArchives;
+            if (allobbs != null)
+            {
+                for (int i = 0; i < allobbs.Length; ++i)
+                {
+                    var obbname = allobbs[i];
+                    var obbzip = (allobbzips == null || i >= allobbzips.Length) ? null : allobbzips[i];
+                    if (obbzip == null)
+                    {
+                        if (obbname.StartsWith("delayed", StringComparison.InvariantCultureIgnoreCase))
+                        {
+                            missingObbNames.Add(obbname);
+                        }
+                    }
+                }
+            }
+            return missingObbNames.ToArray();
+        }
+
+        public static string GetObbPathForName(string name)
+        {
+            var allobbs = ResManager.AllObbNames;
+            var allobbpaths = ResManager.AllObbPaths;
+            if (allobbs != null && allobbpaths != null)
+            {
+                for (int i = 0; i < allobbs.Length; ++i)
+                {
+                    if (allobbs[i] == name)
+                    {
+                        if (allobbpaths.Length > i)
+                        {
+                            return allobbpaths[i];
+                        }
+                    }
+                }
+            }
+            return null;
+        }
     }
 }
