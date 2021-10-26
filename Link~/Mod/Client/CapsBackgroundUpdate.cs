@@ -190,6 +190,7 @@ namespace Capstones.UnityEngineEx
                             });
                     }
                 };
+                updateOne();
             }
             return prog;
         }
