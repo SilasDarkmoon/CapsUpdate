@@ -31,6 +31,7 @@ namespace Capstones.UnityEngineEx
         public static void RefreshWhenBackgroundUpdateDone()
         {
             ResManager.ForgetMissingAssetBundles();
+            ClearCachedBackgroundUpdateInfos();
         }
 
         private static List<BackgroundUpdateInfo> CachedBackgroundUpdateInfos = new List<BackgroundUpdateInfo>();
