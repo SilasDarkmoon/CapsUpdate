@@ -11,12 +11,6 @@ namespace Capstones.UnityEngineEx
 {
     public static class CapsBackgroundUpdateUtils
     {
-        public static void RefreshWhenBackgroundUpdateDone()
-        {
-            ResManager.ForgetMissingAssetBundles();
-        }
-
-#if MOD_CAPSNETWORK
         public class BackgroundUpdateInfo
         {
             public string Url;
@@ -33,6 +27,31 @@ namespace Capstones.UnityEngineEx
                 UnzipTo = unziptodir;
             }
         }
+
+        public static void RefreshWhenBackgroundUpdateDone()
+        {
+            ResManager.ForgetMissingAssetBundles();
+        }
+
+        private static List<BackgroundUpdateInfo> CachedBackgroundUpdateInfos = new List<BackgroundUpdateInfo>();
+        public static void ClearCachedBackgroundUpdateInfos()
+        {
+            CachedBackgroundUpdateInfos.Clear();
+        }
+        public static void CacheBackgroundUpdateInfo(string url, string path, bool checkzip, string unzipdir)
+        {
+            CachedBackgroundUpdateInfos.Add(new BackgroundUpdateInfo(url, path, checkzip, unzipdir));
+        }
+        public static BackgroundUpdateInfo[] GetCachedBackgroundUpdateInfos()
+        {
+            return CachedBackgroundUpdateInfos.ToArray();
+        }
+        public static bool HaveCachedBackgroundUpdateInfos()
+        {
+            return CachedBackgroundUpdateInfos.Count > 0;
+        }
+
+#if MOD_CAPSNETWORK
         private struct VolatileBool
         {
             public volatile bool Value;
@@ -172,6 +191,10 @@ namespace Capstones.UnityEngineEx
                 };
             }
             return prog;
+        }
+        public static TaskProgress UpdateCachedBackground()
+        {
+            return UpdateBackground(GetCachedBackgroundUpdateInfos());
         }
 #endif
     }

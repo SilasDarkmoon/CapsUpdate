@@ -1163,7 +1163,7 @@ namespace Capstones.UnityEngineEx
                 for (int i = 0; i < missingObbNames.Count; ++i)
                 {
                     var obbname = missingObbNames[i];
-                    if (!obbname.StartsWith("delayed", StringComparison.InvariantCultureIgnoreCase))
+                    //if (!obbname.StartsWith("delayed", StringComparison.InvariantCultureIgnoreCase)) // Do the delayed update in lua
                     {
                         vers["obb-" + obbname] = 0;
                     }
