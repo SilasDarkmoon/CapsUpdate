@@ -33,7 +33,7 @@ namespace Capstones.UnityEngineEx
             ResManager.ForgetMissingAssetBundles();
             ClearCachedBackgroundUpdateInfos();
         }
-
+        private static Dictionary<string, TaskProgress> UrlTask = new Dictionary<string, TaskProgress>();
         private static List<BackgroundUpdateInfo> CachedBackgroundUpdateInfos = new List<BackgroundUpdateInfo>();
         public static void ClearCachedBackgroundUpdateInfos()
         {
@@ -50,6 +50,14 @@ namespace Capstones.UnityEngineEx
         public static bool HaveCachedBackgroundUpdateInfos()
         {
             return CachedBackgroundUpdateInfos.Count > 0;
+        }
+        public static TaskProgress GetUrlTask(string key)
+        {
+            if (UrlTask.ContainsKey(key))
+            {
+                return UrlTask[key];
+            }
+            return null;
         }
 
 #if MOD_CAPSNETWORK
@@ -141,6 +149,7 @@ namespace Capstones.UnityEngineEx
                     {
                         index.Value = currentindex + 1;
                         var info = infos[currentindex];
+                        UrlTask[info.Url] = prog;
                         subprog.Value = HttpRequestUtils.DownloadBackground(info.Url, info.Path,
                             error =>
                             {
@@ -175,7 +184,8 @@ namespace Capstones.UnityEngineEx
                             },
                             reportedprog =>
                             {
-                                prog.Length = currentindex * 100 + reportedprog;
+                                var length = currentindex * 100 + reportedprog;
+                                prog.Length = length;
                             },
                             checkpath =>
                             {
