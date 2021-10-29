@@ -17,14 +17,16 @@ namespace Capstones.UnityEngineEx
             public string Path;
             public bool CheckZip;
             public string UnzipTo;
+            public long Size;
 
             public BackgroundUpdateInfo() { }
-            public BackgroundUpdateInfo(string url, string topath, bool checkzip, string unziptodir)
+            public BackgroundUpdateInfo(string url, string topath, bool checkzip, string unziptodir, long size)
             {
                 Url = url;
                 Path = topath;
                 CheckZip = checkzip;
                 UnzipTo = unziptodir;
+                Size = size;
             }
         }
 
@@ -33,31 +35,33 @@ namespace Capstones.UnityEngineEx
             ResManager.ForgetMissingAssetBundles();
             ClearCachedBackgroundUpdateInfos();
         }
-        private static Dictionary<string, TaskProgress> UrlTask = new Dictionary<string, TaskProgress>();
+
         private static List<BackgroundUpdateInfo> CachedBackgroundUpdateInfos = new List<BackgroundUpdateInfo>();
         public static void ClearCachedBackgroundUpdateInfos()
         {
             CachedBackgroundUpdateInfos.Clear();
         }
-        public static void CacheBackgroundUpdateInfo(string url, string path, bool checkzip, string unzipdir)
+        public static void CacheBackgroundUpdateInfo(string url, string path, bool checkzip, string unzipdir, long size)
         {
-            CachedBackgroundUpdateInfos.Add(new BackgroundUpdateInfo(url, path, checkzip, unzipdir));
+            CachedBackgroundUpdateInfos.Add(new BackgroundUpdateInfo(url, path, checkzip, unzipdir, size));
         }
         public static BackgroundUpdateInfo[] GetCachedBackgroundUpdateInfos()
         {
             return CachedBackgroundUpdateInfos.ToArray();
         }
+        public static long GetCachedBackgroundUpdateTotalSize()
+        {
+            long total = 0;
+            for (int i = 0; i < CachedBackgroundUpdateInfos.Count; ++i)
+            {
+                var info = CachedBackgroundUpdateInfos[i];
+                total += info.Size;
+            }
+            return total;
+        }
         public static bool HaveCachedBackgroundUpdateInfos()
         {
             return CachedBackgroundUpdateInfos.Count > 0;
-        }
-        public static TaskProgress GetUrlTask(string key)
-        {
-            if (UrlTask.ContainsKey(key))
-            {
-                return UrlTask[key];
-            }
-            return null;
         }
 
 #if MOD_CAPSNETWORK
@@ -149,7 +153,6 @@ namespace Capstones.UnityEngineEx
                     {
                         index.Value = currentindex + 1;
                         var info = infos[currentindex];
-                        UrlTask[info.Url] = prog;
                         subprog.Value = HttpRequestUtils.DownloadBackground(info.Url, info.Path,
                             error =>
                             {
@@ -184,8 +187,7 @@ namespace Capstones.UnityEngineEx
                             },
                             reportedprog =>
                             {
-                                var length = currentindex * 100 + reportedprog;
-                                prog.Length = length;
+                                prog.Length = currentindex * 100 + reportedprog;
                             },
                             checkpath =>
                             {
