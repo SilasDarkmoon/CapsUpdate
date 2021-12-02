@@ -226,57 +226,74 @@ namespace Capstones.UnityEngineEx
                             }
 
                             var zip = allobbs[z];
+                            string obbpre = null;
+                            if (ResManager.AllNonRawExObbs[z] != null)
+                            {
+                                obbpre = ResManager.AllNonRawExObbs[z].GetEntryPrefix();
+                            }
                             var arch = zip;
                             if (arch != null)
                             {
                                 try
                                 {
-                                    var indexentry = arch.GetEntry("spt/index.txt");
+                                    var indexentryname = "spt/index.txt";
+                                    if (obbpre != null)
+                                    {
+                                        indexentryname = obbpre + indexentryname;
+                                    }
+                                    var indexentry = arch.GetEntry(indexentryname);
                                     if (indexentry == null)
                                     {
                                         var entries = arch.Entries;
                                         for (int i = 0; i < entries.Count; ++i)
                                         {
                                             var name = entries[i].FullName;
-                                            if (name.StartsWith("spt/"))
+                                            if (obbpre == null || name.StartsWith(obbpre))
                                             {
-                                                string mod = "";
-                                                string dist = "";
-                                                string norm = null;
-                                                if (name.StartsWith("spt/mod/"))
+                                                if (obbpre != null)
                                                 {
-                                                    var imodend = name.IndexOf('/', "spt/mod/".Length);
-                                                    if (imodend > 0)
+                                                    name = name.Substring(obbpre.Length);
+                                                }
+                                                if (name.StartsWith("spt/"))
+                                                {
+                                                    string mod = "";
+                                                    string dist = "";
+                                                    string norm = null;
+                                                    if (name.StartsWith("spt/mod/"))
                                                     {
-                                                        mod = name.Substring("spt/mod/".Length, imodend - "spt/mod/".Length);
-                                                        norm = name.Substring(imodend + 1);
+                                                        var imodend = name.IndexOf('/', "spt/mod/".Length);
+                                                        if (imodend > 0)
+                                                        {
+                                                            mod = name.Substring("spt/mod/".Length, imodend - "spt/mod/".Length);
+                                                            norm = name.Substring(imodend + 1);
+                                                        }
                                                     }
-                                                }
-                                                if (norm == null)
-                                                {
-                                                    norm = name.Substring("spt/".Length);
-                                                }
-                                                if (norm.StartsWith("dist/"))
-                                                {
-                                                    var idistend = norm.IndexOf('/', "dist/".Length);
-                                                    if (idistend > 0)
+                                                    if (norm == null)
                                                     {
-                                                        dist = norm.Substring("dist/".Length, idistend - "dist/".Length);
+                                                        norm = name.Substring("spt/".Length);
                                                     }
-                                                }
+                                                    if (norm.StartsWith("dist/"))
+                                                    {
+                                                        var idistend = norm.IndexOf('/', "dist/".Length);
+                                                        if (idistend > 0)
+                                                        {
+                                                            dist = norm.Substring("dist/".Length, idistend - "dist/".Length);
+                                                        }
+                                                    }
 
-                                                if (mod != "" && !OpMods.Contains(mod))
-                                                {
-                                                    mod = "";
-                                                }
+                                                    if (mod != "" && !OpMods.Contains(mod))
+                                                    {
+                                                        mod = "";
+                                                    }
 
-                                                HashSet<string> dists;
-                                                if (!keys.TryGetValue(mod, out dists))
-                                                {
-                                                    dists = new HashSet<string>();
-                                                    keys[mod] = dists;
+                                                    HashSet<string> dists;
+                                                    if (!keys.TryGetValue(mod, out dists))
+                                                    {
+                                                        dists = new HashSet<string>();
+                                                        keys[mod] = dists;
+                                                    }
+                                                    dists.Add(dist);
                                                 }
-                                                dists.Add(dist);
                                             }
                                         }
                                     }
@@ -347,12 +364,21 @@ namespace Capstones.UnityEngineEx
                                 }
 
                                 var zip = allobbs[z];
+                                var itemname = item;
+                                if (ResManager.AllNonRawExObbs[z] != null)
+                                {
+                                    var obbpre = ResManager.AllNonRawExObbs[z].GetEntryPrefix();
+                                    if (obbpre != null)
+                                    {
+                                        itemname = obbpre + itemname;
+                                    }
+                                }
                                 var arch = zip;
                                 if (arch != null)
                                 {
                                     try
                                     {
-                                        var entry = arch.GetEntry(item);
+                                        var entry = arch.GetEntry(itemname);
                                         if (entry != null)
                                         {
                                             return true;
@@ -689,6 +715,11 @@ namespace Capstones.UnityEngineEx
                                             }
 
                                             var zip = allobbs[z];
+                                            string obbpre = null;
+                                            if (ResManager.AllNonRawExObbs[z] != null)
+                                            {
+                                                obbpre = ResManager.AllNonRawExObbs[z].GetEntryPrefix();
+                                            }
                                             var arch = zip;
                                             if (arch != null)
                                             {
@@ -699,14 +730,21 @@ namespace Capstones.UnityEngineEx
                                                     {
                                                         var entry = entries[i];
                                                         var name = entry.FullName;
-                                                        if (name.StartsWith("spt/") && name != "spt/version.txt")
+                                                        if (obbpre == null || name.StartsWith(obbpre))
                                                         {
-                                                            // copy
-                                                            using (var src = entry.Open())
+                                                            if (obbpre != null)
                                                             {
-                                                                using (var dst = PlatDependant.OpenWrite(ThreadSafeValues.UpdatePath + "/" + name))
+                                                                name = name.Substring(obbpre.Length);
+                                                            }
+                                                            if (name.StartsWith("spt/") && name != "spt/version.txt")
+                                                            {
+                                                                // copy
+                                                                using (var src = entry.Open())
                                                                 {
-                                                                    src.CopyTo(dst);
+                                                                    using (var dst = PlatDependant.OpenWrite(ThreadSafeValues.UpdatePath + "/" + name))
+                                                                    {
+                                                                        src.CopyTo(dst);
+                                                                    }
                                                                 }
                                                             }
                                                         }
@@ -743,7 +781,16 @@ namespace Capstones.UnityEngineEx
                                         {
                                             try
                                             {
-                                                var entry = arch.GetEntry("assets/spt/manifest.m.txt");
+                                                var entryname = "assets/spt/manifest.m.txt";
+                                                if (ResManager.AllNonRawExObbs[i] != null)
+                                                {
+                                                    var obbpre = ResManager.AllNonRawExObbs[i].GetEntryPrefix();
+                                                    if (obbpre != null)
+                                                    {
+                                                        entryname = obbpre + entryname;
+                                                    }
+                                                }
+                                                var entry = arch.GetEntry(entryname);
                                                 if (entry != null)
                                                 {
                                                     // copy
@@ -953,6 +1000,11 @@ namespace Capstones.UnityEngineEx
                                             }
 
                                             var zip = allobbs[z];
+                                            string obbpre = null;
+                                            if (ResManager.AllNonRawExObbs[z] != null)
+                                            {
+                                                obbpre = ResManager.AllNonRawExObbs[z].GetEntryPrefix();
+                                            }
                                             var arch = zip;
                                             if (arch != null)
                                             {
@@ -963,17 +1015,24 @@ namespace Capstones.UnityEngineEx
                                                     {
                                                         var entry = entries[i];
                                                         var name = entry.FullName;
-                                                        if (name.StartsWith("spt/") && name != "spt/version.txt")
+                                                        if (obbpre == null || name.StartsWith(obbpre))
                                                         {
-                                                            var file = name.Substring("spt/".Length);
-                                                            if (IsItemOld(file, _OldRunningKeys, _RunningVer))
+                                                            if (obbpre != null)
                                                             {
-                                                                // copy
-                                                                using (var src = entry.Open())
+                                                                name = name.Substring(obbpre.Length);
+                                                            }
+                                                            if (name.StartsWith("spt/") && name != "spt/version.txt")
+                                                            {
+                                                                var file = name.Substring("spt/".Length);
+                                                                if (IsItemOld(file, _OldRunningKeys, _RunningVer))
                                                                 {
-                                                                    using (var dst = PlatDependant.OpenWrite(ThreadSafeValues.UpdatePath + "/spt/" + file))
+                                                                    // copy
+                                                                    using (var src = entry.Open())
                                                                     {
-                                                                        src.CopyTo(dst);
+                                                                        using (var dst = PlatDependant.OpenWrite(ThreadSafeValues.UpdatePath + "/spt/" + file))
+                                                                        {
+                                                                            src.CopyTo(dst);
+                                                                        }
                                                                     }
                                                                 }
                                                             }
