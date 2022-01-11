@@ -181,9 +181,11 @@ function update.update(funcComplete, funcReport)
                                             rlen = len
                                         end
                                         while not req.IsDone do
-                                            if req.Total > 0 and (not reqTotal or req.Total > reqTotal) then
-                                                reqTotal = req.Total
-                                                rlen = reqTotal
+                                            if clr.plat ~= "IPhonePlayer" then
+                                                if req.Total > 0 and (not reqTotal or req.Total > reqTotal) then
+                                                    reqTotal = req.Total
+                                                    rlen = reqTotal
+                                                end
                                             end
                                             if req.Length > reqReceivedLength then
                                                 reqReceivedLength = req.Length
