@@ -133,6 +133,11 @@ namespace Capstones.UnityEngineEx
                                         }
 
                                         var zip = allobbs[z];
+                                        string obbpre = null;
+                                        if (ResManager.AllNonRawExObbs[z] != null)
+                                        {
+                                            obbpre = ResManager.AllNonRawExObbs[z].GetEntryPrefix();
+                                        }
                                         var arch = zip;
                                         if (arch != null)
                                         {
@@ -144,16 +149,23 @@ namespace Capstones.UnityEngineEx
                                                 {
                                                     var entry = entries[i];
                                                     var name = entry.FullName;
-                                                    if (name.StartsWith("res/") && name != "res/version.txt")
+                                                    if (obbpre == null || name.StartsWith(obbpre))
                                                     {
-                                                        if (!ResManager.LoadAssetsFromObb || entry.CompressedLength != entry.Length)
+                                                        if (obbpre != null)
                                                         {
-                                                            // copy
-                                                            using (var src = entry.Open())
+                                                            name = name.Substring(obbpre.Length);
+                                                        }
+                                                        if (name.StartsWith("res/") && name != "res/version.txt")
+                                                        {
+                                                            if (!ResManager.LoadAssetsFromObb || entry.CompressedLength != entry.Length)
                                                             {
-                                                                using (var dst = PlatDependant.OpenWrite(ThreadSafeValues.UpdatePath + "/" + name))
+                                                                // copy
+                                                                using (var src = entry.Open())
                                                                 {
-                                                                    src.CopyTo(dst);
+                                                                    using (var dst = PlatDependant.OpenWrite(ThreadSafeValues.UpdatePath + "/" + name))
+                                                                    {
+                                                                        src.CopyTo(dst);
+                                                                    }
                                                                 }
                                                             }
                                                         }
@@ -307,6 +319,11 @@ namespace Capstones.UnityEngineEx
                                         }
 
                                         var zip = allobbs[z];
+                                        string obbpre = null;
+                                        if (ResManager.AllNonRawExObbs[z] != null)
+                                        {
+                                            obbpre = ResManager.AllNonRawExObbs[z].GetEntryPrefix();
+                                        }
                                         var arch = zip;
                                         if (arch != null)
                                         {
@@ -318,19 +335,26 @@ namespace Capstones.UnityEngineEx
                                                 {
                                                     var entry = entries[i];
                                                     var name = entry.FullName;
-                                                    if (name.StartsWith("res/") && name != "res/version.txt")
+                                                    if (obbpre == null || name.StartsWith(obbpre))
                                                     {
-                                                        if (!ResManager.LoadAssetsFromObb || entry.CompressedLength != entry.Length)
+                                                        if (obbpre != null)
                                                         {
-                                                            var part = name.Substring("res/".Length);
-                                                            if (IsResFileOld(part))
+                                                            name = name.Substring(obbpre.Length);
+                                                        }
+                                                        if (name.StartsWith("res/") && name != "res/version.txt")
+                                                        {
+                                                            if (!ResManager.LoadAssetsFromObb || entry.CompressedLength != entry.Length)
                                                             {
-                                                                // copy
-                                                                using (var src = entry.Open())
+                                                                var part = name.Substring("res/".Length);
+                                                                if (IsResFileOld(part))
                                                                 {
-                                                                    using (var dst = PlatDependant.OpenWrite(ThreadSafeValues.UpdatePath + "/" + name))
+                                                                    // copy
+                                                                    using (var src = entry.Open())
                                                                     {
-                                                                        src.CopyTo(dst);
+                                                                        using (var dst = PlatDependant.OpenWrite(ThreadSafeValues.UpdatePath + "/" + name))
+                                                                        {
+                                                                            src.CopyTo(dst);
+                                                                        }
                                                                     }
                                                                 }
                                                             }
@@ -812,7 +836,16 @@ namespace Capstones.UnityEngineEx
                                 {
                                     try
                                     {
-                                        var entry = arch.GetEntry("res/version.txt");
+                                        var entryname = "res/version.txt";
+                                        if (ResManager.AllNonRawExObbs[z] != null)
+                                        {
+                                            var obbpre = ResManager.AllNonRawExObbs[z].GetEntryPrefix();
+                                            if (obbpre != null)
+                                            {
+                                                entryname = obbpre + entryname;
+                                            }
+                                        }
+                                        var entry = arch.GetEntry(entryname);
                                         if (entry != null)
                                         {
                                             using (var stream = entry.Open())
