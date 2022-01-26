@@ -1190,10 +1190,10 @@ namespace Capstones.UnityEngineEx
         private static void PrepareRuntimeManifest()
         {
             Dictionary<string, int> vers = new Dictionary<string, int>();
-            foreach (var kvp in CapsUpdateResEntry.ParseRunningResVersion())
-            {
-                vers["res-" + kvp.Key] = kvp.Value;
-            }
+            //foreach (var kvp in CapsUpdateResEntry.ParseRunningResVersion())
+            //{
+            //    vers["res-" + kvp.Key] = kvp.Value;
+            //}
             foreach (var kvp in ParseRunningSptVersion())
             {
                 vers["spt-" + kvp.Key] = kvp.Value;

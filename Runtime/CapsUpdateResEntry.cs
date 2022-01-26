@@ -212,6 +212,7 @@ namespace Capstones.UnityEngineEx
                             sw.Flush();
                         }
                         PlatDependant.MoveFile(versionfiletmp, versionfile);
+                        ReportResVersion();
                         yield break;
                     }
                     else if (_OldRunningKeys != null && _OldRunningKeys.Count > 0)
@@ -410,6 +411,7 @@ namespace Capstones.UnityEngineEx
                             sw.Flush();
                         }
                         PlatDependant.MoveFile(versionfiletmp, versionfile);
+                        ReportResVersion();
                         yield break;
                     }
                 }
@@ -458,6 +460,7 @@ namespace Capstones.UnityEngineEx
                         PlatDependant.MoveFile(versionfiletmp, versionfile);
                     }
                 }
+                ReportResVersion();
             }
 
             public event ResManager.ProgressReportDelegate ReportProgress = (key, attached, val) => { };
@@ -1105,6 +1108,16 @@ namespace Capstones.UnityEngineEx
                 }
             }
             return false;
+        }
+
+        private static void ReportResVersion()
+        {
+            Dictionary<string, int> vers = new Dictionary<string, int>();
+            foreach (var kvp in ParseRunningResVersion())
+            {
+                vers["res-" + kvp.Key] = kvp.Value;
+            }
+            CrossEvent.TrigClrEvent("ReportResVersion", new CrossEvent.RawEventData<Dictionary<string, int>>(vers));
         }
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]

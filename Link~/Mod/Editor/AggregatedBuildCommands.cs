@@ -66,6 +66,19 @@ namespace Capstones.UnityEditorEx
             winprog.OnQuit += () => { CapsResBuilder.BuildingParams = null; };
             winprog.StartWork();
         }
+
+        [MenuItem("Res/Archive Built Res", priority = 200125)]
+        public static void ArchiveBuiltRes()
+        {
+            var timetoken = CapsResBuilder.ResBuilderParams.Create().timetoken;
+            IEnumerator work;
+#if MOD_CAPSLUA
+            work = CapsSptBuilder.ZipBuiltSptAsync(null, timetoken);
+            while (work.MoveNext()) ;
+#endif
+            work = CapsResBuilder.ZipBuiltResAsync(null, timetoken);
+            while (work.MoveNext()) ;
+        }
     }
 }
 #endif

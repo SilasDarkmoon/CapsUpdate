@@ -930,6 +930,50 @@ namespace Capstones.UnityEditorEx
             var work = BuildNearestUpdate(null);
             while (work.MoveNext()) ;
         }
+        [MenuItem("Res/Fix Nearest Update Archive", priority = 200126)]
+        public static void FixNearestUpdateArchive()
+        {
+            var outputDir = "EditorOutput/Build/";
+            var seldir = outputDir;
+            string dirUpdateRoot = "";
+            string dirUpdateThis = "";
+            var regex = new System.Text.RegularExpressions.Regex(@"\d{6}_\d{6}");
+            var subdirs = Directory.GetDirectories(seldir, "*", SearchOption.AllDirectories);
+            var subdirs2 =
+                from subdir in subdirs
+                where regex.IsMatch(Path.GetFileName(subdir))
+                orderby subdir descending
+                select subdir;
+            if (subdirs2.Count() > 0)
+            {
+                dirUpdateRoot = Path.GetDirectoryName(subdirs2.First());
+                dirUpdateThis = subdirs2.First();
+
+                CapsResBuilder.CopyMissingBuiltFilesToArchiveFolder(dirUpdateThis + "/whole", null);
+            }
+        }
+        [MenuItem("Res/Restore From Nearest Update Archive", priority = 200127)]
+        public static void RestoreFromNearestUpdateArchive()
+        {
+            var outputDir = "EditorOutput/Build/";
+            var seldir = outputDir;
+            string dirUpdateRoot = "";
+            string dirUpdateThis = "";
+            var regex = new System.Text.RegularExpressions.Regex(@"\d{6}_\d{6}");
+            var subdirs = Directory.GetDirectories(seldir, "*", SearchOption.AllDirectories);
+            var subdirs2 =
+                from subdir in subdirs
+                where regex.IsMatch(Path.GetFileName(subdir))
+                orderby subdir descending
+                select subdir;
+            if (subdirs2.Count() > 0)
+            {
+                dirUpdateRoot = Path.GetDirectoryName(subdirs2.First());
+                dirUpdateThis = subdirs2.First();
+
+                CapsResBuilder.RestoreFromArchiveFolder(dirUpdateThis + "/whole", null);
+            }
+        }
     }
 
     [InitializeOnLoad]
