@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Text;
 using System.IO;
 using UnityEngine;
+#if MOD_CAPSNETWORK
 using Capstones.Net;
+#endif
 
 using Object = UnityEngine.Object;
 
