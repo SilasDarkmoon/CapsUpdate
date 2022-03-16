@@ -79,6 +79,15 @@ namespace Capstones.UnityEditorEx
             work = CapsResBuilder.ZipBuiltResAsync(null, timetoken);
             while (work.MoveNext()) ;
         }
+
+        [MenuItem("Res/Restore Streaming Assets From Latest Build", priority = 200128)]
+        public static void RestoreStreamingAssetsFromLatestBuild()
+        {
+#if MOD_CAPSLUA
+            CapsSptBuilder.RestoreStreamingAssetsFromLatestBuild();
+#endif
+            CapsResBuilder.RestoreStreamingAssetsFromLatestBuild();
+        }
     }
 }
 #endif
