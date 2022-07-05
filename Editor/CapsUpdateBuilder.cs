@@ -213,7 +213,7 @@ namespace Capstones.UnityEditorEx
                             {
                                 continue;
                             }
-                            if (maniold != null && maninew.GetAssetBundleHash(bundle) == maniold.GetAssetBundleHash(bundle))
+                            if (maniold != null) // && maninew.GetAssetBundleHash(bundle) == maniold.GetAssetBundleHash(bundle)) // Donot use GetAssetBundleHash, it is not stable.
                             {
                                 if (olda != null)
                                 {
@@ -222,13 +222,28 @@ namespace Capstones.UnityEditorEx
                                     {
                                         if (olde.Length == newe.Length)
                                         {
-                                            // TODO: sometimes the AssetBundleHash may be same (example: we deleted a sprite-atlas).
-                                            // we can diff these from: AssetBundle TypeTreeHash. we should load bundle.manifest and parse it use YAML. it's so difficult.
-                                            // or we can get the ab file's change time. but this information is not recorded to zip
-                                            // or we can get the crc of the entry. but it's private.
-                                            // or we can get md5 of the entry. but need full read.
-                                            // so we choose use length. In this condition, the ab file length's diff is almost a must.
-                                            continue;
+                                            string md5old = "";
+                                            string md5new = "";
+                                            try
+                                            {
+                                                using (var sold = olde.Open())
+                                                {
+                                                    md5old = CapsEditorUtils.GetStreamMD5(sold);
+                                                }
+                                            }
+                                            catch { }
+                                            try
+                                            {
+                                                using (var snew = newe.Open())
+                                                {
+                                                    md5new = CapsEditorUtils.GetStreamMD5(snew);
+                                                }
+                                            }
+                                            catch { }
+                                            if (md5new == md5old)
+                                            {
+                                                continue;
+                                            }
                                         }
                                     }
                                 }
