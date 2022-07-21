@@ -18,6 +18,7 @@ namespace Capstones.UnityEngineEx
             public string Url;
             public string Path;
             public bool CheckZip;
+            public bool UseBackgroundTransfer;
             public string UnzipTo;
             public long Size;
 
@@ -27,6 +28,15 @@ namespace Capstones.UnityEngineEx
                 Url = url;
                 Path = topath;
                 CheckZip = checkzip;
+                UnzipTo = unziptodir;
+                Size = size;
+            }
+            public BackgroundUpdateInfo(string url, string topath, bool checkzip, bool background, string unziptodir, long size)
+            {
+                Url = url;
+                Path = topath;
+                CheckZip = checkzip;
+                UseBackgroundTransfer = background;
                 UnzipTo = unziptodir;
                 Size = size;
             }
@@ -46,6 +56,10 @@ namespace Capstones.UnityEngineEx
         public static void CacheBackgroundUpdateInfo(string url, string path, bool checkzip, string unzipdir, long size)
         {
             CachedBackgroundUpdateInfos.Add(new BackgroundUpdateInfo(url, path, checkzip, unzipdir, size));
+        }
+        public static void CacheBackgroundUpdateInfo(string url, string path, bool checkzip, bool background, string unzipdir, long size)
+        {
+            CachedBackgroundUpdateInfos.Add(new BackgroundUpdateInfo(url, path, checkzip, background, unzipdir, size));
         }
         public static BackgroundUpdateInfo[] GetCachedBackgroundUpdateInfos()
         {
@@ -155,53 +169,113 @@ namespace Capstones.UnityEngineEx
                     {
                         index.Value = currentindex + 1;
                         var info = infos[currentindex];
-                        subprog.Value = HttpRequestUtils.DownloadBackground(info.Url, info.Path,
-                            error =>
-                            {
-                                if (error == null)
+                        bool useBackgroundTransfer = false;
+#if !UNITY_EDITOR && (UNITY_IPHONE || UNITY_ANDROID || UNITY_WSA)
+                        if (info.UseBackgroundTransfer)
+                        {
+                            useBackgroundTransfer = true;
+                        }
+#endif
+                        if (useBackgroundTransfer)
+                        {
+                            subprog.Value = BackgroundDownloadUtils.DownloadBackground(info.Url, info.Path,
+                                error =>
                                 {
-                                    if (info.UnzipTo != null)
+                                    if (error == null)
                                     {
-                                        var curprog = prog.Length;
-                                        var zipprog = PlatDependant.UnzipAsync(info.Path, info.UnzipTo);
-                                        while (!zipprog.Done)
+                                        if (info.UnzipTo != null)
                                         {
-                                            System.Threading.Thread.Sleep(1000);
-                                            prog.Length = curprog + (long)((((float)zipprog.Length) / (float)zipprog.Total) * 5f);
+                                            var curprog = prog.Length;
+                                            var zipprog = PlatDependant.UnzipAsync(info.Path, info.UnzipTo);
+                                            while (!zipprog.Done)
+                                            {
+                                                System.Threading.Thread.Sleep(1000);
+                                                prog.Length = curprog + (long)((((float)zipprog.Length) / (float)zipprog.Total) * 5f);
+                                            }
+                                            if (zipprog.Error != null)
+                                            {
+                                                index.Value = currentindex;
+                                                updateOne();
+                                                return;
+                                            }
                                         }
-                                        if (zipprog.Error != null)
+                                        updateOne();
+                                    }
+                                    else
+                                    {
+                                        if (prog.Error == null)
                                         {
-                                            index.Value = currentindex;
-                                            updateOne();
-                                            return;
+                                            prog.Error = error;
+                                            prog.Done = true;
                                         }
                                     }
-                                    updateOne();
-                                }
-                                else
+                                },
+                                reportedprog =>
                                 {
-                                    if (prog.Error == null)
+                                    prog.Length = currentindex * 100 + reportedprog;
+                                },
+                                checkpath =>
+                                {
+                                    if (info.CheckZip)
                                     {
-                                        prog.Error = error;
-                                        prog.Done = true;
+                                        return CapsUpdateUtils.CheckZipFile(checkpath);
                                     }
-                                }
-                            },
-                            reportedprog =>
-                            {
-                                prog.Length = currentindex * 100 + reportedprog;
-                            },
-                            checkpath =>
-                            {
-                                if (info.CheckZip)
+                                    else
+                                    {
+                                        return true;
+                                    }
+                                });
+                        }
+                        else
+                        {
+                            subprog.Value = HttpRequestUtils.DownloadBackground(info.Url, info.Path,
+                                error =>
                                 {
-                                    return CapsUpdateUtils.CheckZipFile(checkpath);
-                                }
-                                else
+                                    if (error == null)
+                                    {
+                                        if (info.UnzipTo != null)
+                                        {
+                                            var curprog = prog.Length;
+                                            var zipprog = PlatDependant.UnzipAsync(info.Path, info.UnzipTo);
+                                            while (!zipprog.Done)
+                                            {
+                                                System.Threading.Thread.Sleep(1000);
+                                                prog.Length = curprog + (long)((((float)zipprog.Length) / (float)zipprog.Total) * 5f);
+                                            }
+                                            if (zipprog.Error != null)
+                                            {
+                                                index.Value = currentindex;
+                                                updateOne();
+                                                return;
+                                            }
+                                        }
+                                        updateOne();
+                                    }
+                                    else
+                                    {
+                                        if (prog.Error == null)
+                                        {
+                                            prog.Error = error;
+                                            prog.Done = true;
+                                        }
+                                    }
+                                },
+                                reportedprog =>
                                 {
-                                    return true;
-                                }
-                            });
+                                    prog.Length = currentindex * 100 + reportedprog;
+                                },
+                                checkpath =>
+                                {
+                                    if (info.CheckZip)
+                                    {
+                                        return CapsUpdateUtils.CheckZipFile(checkpath);
+                                    }
+                                    else
+                                    {
+                                        return true;
+                                    }
+                                });
+                        }
                     }
                 };
                 updateOne();
