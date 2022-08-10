@@ -132,7 +132,7 @@ namespace Capstones.UnityEngineEx
                 VolatileBool cancelled = new VolatileBool(false);
                 VolatileInt index = new VolatileInt(0);
                 Volatile<TaskProgress> subprog = new Volatile<TaskProgress>();
-                prog.Total = infos.Length * 100;
+                prog.Total = infos.Length * 1000000L;
                 prog.OnCancel = () =>
                 {
                     cancelled.Value = true;
@@ -151,8 +151,8 @@ namespace Capstones.UnityEngineEx
                         sub = newsub;
                     }
                 };
-                Action updateOne = null;
-                updateOne = () =>
+                Action startNextDownload = null;
+                startNextDownload = () =>
                 {
                     var currentindex = index.Value;
                     if (currentindex >= infos.Length)
@@ -189,17 +189,17 @@ namespace Capstones.UnityEngineEx
                                             var zipprog = PlatDependant.UnzipAsync(info.Path, info.UnzipTo);
                                             while (!zipprog.Done)
                                             {
-                                                System.Threading.Thread.Sleep(1000);
-                                                prog.Length = curprog + (long)((((float)zipprog.Length) / (float)zipprog.Total) * 5f);
+                                                System.Threading.Thread.Sleep(200);
+                                                prog.Length = curprog + (long)((((float)zipprog.Length) / (float)zipprog.Total) * 50000f);
                                             }
                                             if (zipprog.Error != null)
                                             {
                                                 index.Value = currentindex;
-                                                updateOne();
+                                                startNextDownload();
                                                 return;
                                             }
                                         }
-                                        updateOne();
+                                        startNextDownload();
                                     }
                                     else
                                     {
@@ -212,7 +212,7 @@ namespace Capstones.UnityEngineEx
                                 },
                                 reportedprog =>
                                 {
-                                    prog.Length = currentindex * 100 + reportedprog;
+                                    prog.Length = currentindex * 1000000L + reportedprog;
                                 },
                                 checkpath =>
                                 {
@@ -239,17 +239,17 @@ namespace Capstones.UnityEngineEx
                                             var zipprog = PlatDependant.UnzipAsync(info.Path, info.UnzipTo);
                                             while (!zipprog.Done)
                                             {
-                                                System.Threading.Thread.Sleep(1000);
-                                                prog.Length = curprog + (long)((((float)zipprog.Length) / (float)zipprog.Total) * 5f);
+                                                System.Threading.Thread.Sleep(200);
+                                                prog.Length = curprog + (long)((((float)zipprog.Length) / (float)zipprog.Total) * 50000f);
                                             }
                                             if (zipprog.Error != null)
                                             {
                                                 index.Value = currentindex;
-                                                updateOne();
+                                                startNextDownload();
                                                 return;
                                             }
                                         }
-                                        updateOne();
+                                        startNextDownload();
                                     }
                                     else
                                     {
@@ -262,7 +262,7 @@ namespace Capstones.UnityEngineEx
                                 },
                                 reportedprog =>
                                 {
-                                    prog.Length = currentindex * 100 + reportedprog;
+                                    prog.Length = currentindex * 1000000L + reportedprog;
                                 },
                                 checkpath =>
                                 {
@@ -278,7 +278,7 @@ namespace Capstones.UnityEngineEx
                         }
                     }
                 };
-                updateOne();
+                startNextDownload();
             }
             return prog;
         }
