@@ -782,12 +782,15 @@ namespace Capstones.UnityEngineEx
                                             try
                                             {
                                                 var entryname = "assets/spt/manifest.m.txt";
-                                                if (ResManager.AllNonRawExObbs[i] != null)
+                                                if (i > 0)
                                                 {
-                                                    var obbpre = ResManager.AllNonRawExObbs[i].GetEntryPrefix();
-                                                    if (obbpre != null)
+                                                    if (ResManager.AllNonRawExObbs != null && ResManager.AllNonRawExObbs[i - 1] != null)
                                                     {
-                                                        entryname = obbpre + entryname;
+                                                        var obbpre = ResManager.AllNonRawExObbs[i - 1].GetEntryPrefix();
+                                                        if (obbpre != null)
+                                                        {
+                                                            entryname = obbpre + entryname;
+                                                        }
                                                     }
                                                 }
                                                 var entry = arch.GetEntry(entryname);
