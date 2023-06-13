@@ -57,6 +57,11 @@ namespace Capstones.UnityEngineEx
                             else PlatDependant.Sleep(100);
                         }
                         PlatDependant.DeleteFile(zippath);
+
+                        if (_PendingFiles != null)
+                        {
+                            _PendingFiles = PlatDependant.GetAllFiles(ThreadSafeValues.UpdatePath + "/pending/res/");
+                        }
                     }
                     PlatDependant.DeleteFile(unzipingFlagFilePath);
                 }
@@ -1096,6 +1101,10 @@ namespace Capstones.UnityEngineEx
                 else
                 {
                     var mod = System.IO.Path.GetFileName(resfile);
+                    if (mod == "res")
+                    {
+                        mod = "";
+                    }
                     var keypre = "m-" + mod.ToLower() + "-d-";
                     foreach (var key in _OldRunningKeys)
                     {
