@@ -1,12 +1,14 @@
 {
     "name": "CapsUpdateEditor",
+    "rootNamespace": "",
     "references": [
         "ResManager",
         "Unity.IO.Compression",
         "ResManagerEditor",
         "ResManagerEditor.ResBuilder",
         "ResManagerEditorEntry",
-        "ResManagerEntry"
+        "ResManagerEntry",
+        "CapsModsEditor"
     ],
     "includePlatforms": [
         "Editor"
