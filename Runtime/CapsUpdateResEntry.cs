@@ -570,7 +570,7 @@ namespace Capstones.UnityEngineEx
                                 ResManager.SkipPackage = false;
 
                                 _PackageResKeys = ParseRunningResKeys();
-                                if (_PackageResKeys.Count == 0)
+                                if (_PackageResKeys != null && _PackageResKeys.Count == 0)
                                 {
                                     _PackageResKeys = null;
                                 }
@@ -583,7 +583,7 @@ namespace Capstones.UnityEngineEx
                                 ResManager.SkipObb = false;
 
                                 _ObbResKeys = ParseRunningResKeys();
-                                if (_ObbResKeys.Count == 0)
+                                if (_ObbResKeys != null && _ObbResKeys.Count == 0)
                                 {
                                     _ObbResKeys = null;
                                 }
@@ -602,7 +602,7 @@ namespace Capstones.UnityEngineEx
                         ResManager.SkipPackage = false;
 
                         _PackageResKeys = ParseRunningResKeys();
-                        if (_PackageResKeys.Count == 0)
+                        if (_PackageResKeys != null && _PackageResKeys.Count == 0)
                         {
                             _PackageResKeys = null;
                         }
@@ -735,19 +735,16 @@ namespace Capstones.UnityEngineEx
                     if (PlatDependant.IsFileExist(ThreadSafeValues.UpdatePath + "/pending/res/ver.txt"))
                     {
                         CapsUnityMainBehav.LoadEntrySceneBg();
-                        foreach (var kvploaded in ResManager.LoadedAssetBundles)
+                        var loadedbundles = ResManager.GetLoadedBundleFileNames();
+                        if (loadedbundles != null)
                         {
-                            if (kvploaded.Value != null)
+                            for (int i = 0; i < loadedbundles.Count; ++i)
                             {
-                                var abname = kvploaded.Key;
-                                if (kvploaded.Value.RealName != null)
-                                {
-                                    abname = kvploaded.Value.RealName;
-                                }
-                                string path = ThreadSafeValues.UpdatePath + "/pending/res/" + abname;
+                                var bundle = loadedbundles[i];
+                                string path = ThreadSafeValues.UpdatePath + "/pending/res/" + bundle;
                                 if (PlatDependant.IsFileExist(path))
                                 {
-                                    entryPendingAbs.Add(abname);
+                                    entryPendingAbs.Add(bundle);
                                 }
                             }
                         }
@@ -1041,21 +1038,7 @@ namespace Capstones.UnityEngineEx
         }
         public static List<string> ParseRunningResKeys()
         {
-            List<string> keys = new List<string>();
-            var maniabs = ResManager.GetAllResManiBundleNames();
-            if (maniabs != null && maniabs.Length > 0)
-            {
-                for (int i = 0; i < maniabs.Length; ++i)
-                {
-                    var maniab = maniabs[i];
-                    if (maniab.EndsWith(".m.ab"))
-                    {
-                        var reskey = maniab.Substring("mani/".Length, maniab.Length - "mani/".Length - ".m.ab".Length);
-                        keys.Add(reskey);
-                    }
-                }
-            }
-            return keys;
+            return ResManager.ParseRunningResKeys();
         }
         public static bool IsResOld(string mod, string dist)
         {

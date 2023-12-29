@@ -44,7 +44,7 @@ namespace Capstones.UnityEngineEx
 
         public static void RefreshWhenBackgroundUpdateDone()
         {
-            ResManager.ForgetMissingAssetBundles();
+            ResManager.AfterResFilesDeployed();
             ClearCachedBackgroundUpdateInfos();
         }
 
